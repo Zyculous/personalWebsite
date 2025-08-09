@@ -15,7 +15,9 @@ const showThemeSwitcher = ref(false);
 onMounted(async () => {
   // Detect OS
   const userAgent = window.navigator.userAgent;
-  if (userAgent.indexOf("Mac") !== -1) {
+  if (/iPad|iPhone|iPod/.test(userAgent)) {
+    currentTheme.value = 'ios';
+  } else if (userAgent.indexOf("Mac") !== -1) {
     currentTheme.value = 'macos';
   } else if (userAgent.indexOf("Win") !== -1) {
     currentTheme.value = 'windows';
@@ -38,6 +40,11 @@ const showProject = (project) => {
 
 const hideProject = (project) => {
   activeProjects.value = activeProjects.value.filter(p => p.name !== project.name);
+  //Get the DIV element from the page usign the key contained in project.name and remove it from the DOM
+  const projectDiv = document.querySelector(`.project-window[data-name="${project.name}"]`);
+  if (projectDiv) {
+    projectDiv.remove();
+  }
 };
 
 const toggleThemeSwitcher = () => {
@@ -103,7 +110,13 @@ const onLeave = (el, done) => {
             @enter="onEnter"
             @leave="onLeave"
           >
-            <div v-for="(project, index) in activeProjects" :key="project.name" :style="{ zIndex: index }">
+            <div
+              v-for="(project, index) in activeProjects"
+              :key="project.name"
+              :style="{ zIndex: index }"
+              class="project-window"
+              :data-name="project.name"
+            >
               <ProjectWindow :project="project" :theme="currentTheme" @close="hideProject(project)" />
             </div>
           </TransitionGroup>

@@ -1,3 +1,51 @@
+/* iOS Theme */
+.ios-theme {
+    border-radius: 24px;
+    border: 1.5px solid #e0e0e0;
+    background: linear-gradient(145deg, #f8fafc 60%, #e2e8f0 100%);
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10), 0 1.5px 0 #fff inset;
+    color: #222;
+    overflow: hidden;
+}
+.ios-theme .title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    background: linear-gradient(90deg, #f1f5f9 80%, #e2e8f0 100%);
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.02em;
+    color: #222;
+}
+.ios-theme .title-bar-buttons {
+    position: absolute;
+    left: 16px;
+    display: flex;
+    gap: 8px;
+}
+.ios-theme .title-bar-buttons span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #d1d5db;
+    border: 1.5px solid #cbd5e1;
+    display: inline-block;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.ios-theme .title-bar-buttons .close { background: #ff3b30; border-color: #ff3b30; }
+.ios-theme .title-bar-buttons .minimize { background: #ffcc00; border-color: #ffcc00; }
+.ios-theme .title-bar-buttons .maximize { background: #4cd964; border-color: #4cd964; }
+.ios-theme .title-bar-text {
+    flex: 1;
+    text-align: center;
+    color: #222;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
