@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Project Alpha",
+    "description": "This is the first project, focusing on data visualization and backend integration. It uses D3.js for charts and a Node.js server to handle API requests. The theme is inspired by retro-futurism.",
+    "images": [
+      "https://placehold.co/200x150/ff69b4/ffffff?text=Alpha+1",
+      "https://placehold.co/250x180/32cd32/ffffff?text=Alpha+2"
+    ],
+    "imagePositions": [
+      { "x": 30, "y": 60 },
+      { "x": 70, "y": 45 }
+    ]
+  },
+  {
+    "name": "Space Navigator",
+    "description": "An interactive 3D map of the solar system built with Three.js. Users can click on planets to get more information. This project was a deep dive into WebGL and 3D rendering performance.",
+    "images": [
+      "https://placehold.co/220x160/ff6347/ffffff?text=Space+View"
+    ],
+    "imagePositions": [
+      { "x": 50, "y": 50 }
+    ]
+  },
+  {
+    "name": "Pixel Art Editor",
+    "description": "A simple browser-based pixel art editor. This was a fun weekend project to explore canvas manipulation and implementing features like a color palette and save/load functionality.",
+    "images": [
+      "https://placehold.co/200x200/4682b4/ffffff?text=Editor+UI"
+    ],
+    "imagePositions": [
+      { "x": 50, "y": 55 }
+    ]
+  }
+]
