@@ -1,7 +1,7 @@
 [
   {
-    "name": "Project Alpha",
-    "description": "This is the first project, focusing on data visualization and backend integration. It uses D3.js for charts and a Node.js server to handle API requests. The theme is inspired by retro-futurism.",
+    "name": "MS Paint Clone",
+    "description": "",
     "images": [
       "https://placehold.co/200x150/ff69b4/ffffff?text=Alpha+1",
       "https://placehold.co/250x180/32cd32/ffffff?text=Alpha+2"
@@ -12,8 +12,8 @@
     ]
   },
   {
-    "name": "Space Navigator",
-    "description": "An interactive 3D map of the solar system built with Three.js. Users can click on planets to get more information. This project was a deep dive into WebGL and 3D rendering performance.",
+    "name": "Game Day Grill",
+    "description": "This project represents a significant milestone in my development journey. As the frontend developer on a three-person team for the Business Professionals of America (BPA) competition, I was tasked with bringing our application to life.\n\nI began by building the interface in React, and the resulting application carried our team to a first-place win at the regional competition. After this success, I was eager to expand my skills. I had been researching other frameworks and was drawn to the elegance of Vue.js. I decided to challenge myself by completely rebuilding the frontend in Vue, and I immediately appreciated its efficient and enjoyable workflow.\n\nThe state competition taught me an invaluable lesson about how different factors, from backend readiness to judging criteria, can influence a project's outcome. While we didn't advance, the experience was fundamental to my growth. It solidified my confidence in not one, but two modern frameworks and stands as the first major website I built entirely with my own code.",
     "images": [
       "https://placehold.co/220x160/ff6347/ffffff?text=Space+View"
     ],
@@ -22,7 +22,7 @@
     ]
   },
   {
-    "name": "Pixel Art Editor",
+    "name": "Personal Website",
     "description": "A simple browser-based pixel art editor. This was a fun weekend project to explore canvas manipulation and implementing features like a color palette and save/load functionality.",
     "images": [
       "https://placehold.co/200x200/4682b4/ffffff?text=Editor+UI"
