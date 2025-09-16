@@ -1,16 +1,15 @@
-### Multi-stage Dockerfile
-# Stage 1: Build
-FROM node:20-alpine AS build
+# Stage 1: Build the Vue.js application
+FROM node:20-alpine as build-stage
 WORKDIR /app
 COPY package*.json ./
-COPY pnpm-lock.yaml* ./ || true
-RUN npm ci --silent
+RUN npm install
+RUN npm install html2canvas
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve with nginx
-FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# Stage 2: Serve the application with Nginx
+FROM nginx:stable-alpine as production-stage
+# Corrected the syntax on the line below
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 EXPOSE 80
-CMD ["/bin/sh", "-c", "nginx -g 'daemon off;'" ]
+CMD ["nginx", "-g", "daemon off;"]
