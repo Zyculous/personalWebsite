@@ -6,6 +6,11 @@
         :style="{ opacity: scrollOpacity }">
         Scroll Down
       </p>
+      <p
+        class="scroll-text text-red-500 text-xl transition-opacity duration-300 absolute left-1/2 -translate-x-1/2 bottom-80 z-40"
+        :style="{ opacity: scrollOpacity }">
+        WORK IN PROGRESS
+      </p>
     </div>
   </div>
 </template>
