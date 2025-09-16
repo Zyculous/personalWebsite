@@ -1,10 +1,10 @@
 [
   {
     "name": "MS Paint Clone",
-    "description": "",
+    "description": "A simple browser-based pixel art editor. This was a fun project to explore canvas manipulation and implementing features like a color palette and save/load functionality. I also worked with a friend to add multiperson canvases, allowing users to draw on the same canvas together, as well as place stickers of images at custom scales. This was my first website, and I learned by following a random guide to make the basics, and then looking up how to add the features that I wanted, such as more professional styling, images, and the multiperson drawing functionality.",
     "images": [
-      "https://placehold.co/200x150/ff69b4/ffffff?text=Alpha+1",
-      "https://placehold.co/250x180/32cd32/ffffff?text=Alpha+2"
+      "https://placehold.co/200x150/ff69b4/ffffff?text=Multiperson+Canvas",
+      "https://placehold.co/250x180/32cd32/ffffff?text=single+Canvas"
     ],
     "imagePositions": [
       { "x": 30, "y": 60 },
@@ -15,7 +15,7 @@
     "name": "Game Day Grill",
     "description": "This project represents a significant milestone in my development journey. As the frontend developer on a three-person team for the Business Professionals of America (BPA) competition, I was tasked with bringing our application to life.\n\nI began by building the interface in React, and the resulting application carried our team to a first-place win at the regional competition. After this success, I was eager to expand my skills. I had been researching other frameworks and was drawn to the elegance of Vue.js. I decided to challenge myself by completely rebuilding the frontend in Vue, and I immediately appreciated its efficient and enjoyable workflow.\n\nThe state competition taught me an invaluable lesson about how different factors, from backend readiness to judging criteria, can influence a project's outcome. While we didn't advance, the experience was fundamental to my growth. It solidified my confidence in not one, but two modern frameworks and stands as the first major website I built entirely with my own code.",
     "images": [
-      "https://placehold.co/220x160/ff6347/ffffff?text=Space+View"
+      "https://placehold.co/220x160/ff6347/ffffff?text=Menu+Page"
     ],
     "imagePositions": [
       { "x": 50, "y": 50 }
@@ -23,9 +23,9 @@
   },
   {
     "name": "Personal Website",
-    "description": "A simple browser-based pixel art editor. This was a fun weekend project to explore canvas manipulation and implementing features like a color palette and save/load functionality.",
+    "description": "This website!",
     "images": [
-      "https://placehold.co/200x200/4682b4/ffffff?text=Editor+UI"
+      "https://placehold.co/200x200/4682b4/ffffff?text=Personal+Website"
     ],
     "imagePositions": [
       { "x": 50, "y": 55 }

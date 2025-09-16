@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex items-center justify-center sticky top-0 z-0" ref="container">
+  <div class="h-screen flex items-center justify-center sticky top-0 z-0 pointer-events-none" ref="container">
     <div class="relative w-full h-full text-center">
       <p
         class="scroll-text text-white text-xl transition-opacity duration-300 absolute left-1/2 -translate-x-1/2 bottom-12 z-40"
@@ -39,6 +39,7 @@ function createOverlay() {
   overlayCanvas.style.mixBlendMode = 'normal';
   overlayCanvas.style.opacity = '0';
   overlayCanvas.style.transition = 'opacity 180ms linear';
+  overlayCanvas.style.display = 'none';
   document.body.appendChild(overlayCanvas);
   if (DEBUG) console.log('[WelcomeScreen] overlay created');
 }
@@ -88,7 +89,13 @@ function drawFallback(progress) {
     }
   }
   // only show overlay when intensity noticeable
-  overlayCanvas.style.opacity = intensity > 0.03 ? String(Math.min(1, intensity)) : '0';
+  if (intensity > 0.03) {
+    overlayCanvas.style.display = 'block';
+    overlayCanvas.style.opacity = String(Math.min(1, intensity));
+  } else {
+    overlayCanvas.style.opacity = '0';
+    overlayCanvas.style.display = 'none';
+  }
 }
 
 function renderPixelation(progress) {
@@ -101,7 +108,9 @@ function renderPixelation(progress) {
 
   // hide overlay if negligible
   if (intensity < 0.03) {
-    overlayCanvas.style.opacity = '0';
+  overlayCanvas.style.opacity = '0';
+  // completely remove from hit testing when invisible
+  overlayCanvas.style.display = 'none';
     return;
   }
 
@@ -142,6 +151,7 @@ function renderPixelation(progress) {
   ctx.drawImage(small, 0, 0, smallW, smallH, 0, 0, w, h);
   ctx.globalAlpha = 1;
 
+  overlayCanvas.style.display = 'block';
   overlayCanvas.style.opacity = String(Math.min(1, intensity * 1.2));
 }
 
@@ -169,6 +179,8 @@ function onScroll() {
 
 onMounted(() => {
   createOverlay();
+  // ensure welcome container never blocks clicks
+  if (container.value) container.value.style.pointerEvents = 'none';
   // capture once after paint
   setTimeout(() => captureSnapshot(), 500);
 
