@@ -22,6 +22,20 @@
     ]
   },
   {
+    "name": "Laser Tag Software & Hardware",
+    "description": "My custom laser tag mods",
+    "images": [
+      "https://swaptx.com/wp-content/uploads/2020/09/swaptx-logo.fw_.png"
+    ],
+    "imagePositions": [
+      { "x": 50, "y", 50 }
+    ]
+  },
+  {
+    "name": "Minecraft Coding Server -- Codename EmeraldICE",
+    "descrition": "I worked with a friend to create a minecraft server in which you could program on the server using a JavaScript like code browser to interact with players in your personal world area."
+  },
+  {
     "name": "Personal Website",
     "description": "This website!",
     "images": [
