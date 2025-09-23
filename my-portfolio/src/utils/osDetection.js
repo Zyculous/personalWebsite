@@ -60,16 +60,18 @@ export function getDesktopConfig(osType) {
       }
     },
     ios: {
-      wallpaper: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)',
-      taskbarHeight: '0px',
-      taskbarPosition: 'none',
-      taskbarColor: 'transparent',
+      wallpaper: 'linear-gradient(180deg, #007AFF 0%, #5856D6 50%, #FF3B30 100%)',
+      taskbarHeight: '88px',
+      taskbarPosition: 'bottom',
+      taskbarColor: 'rgba(248, 248, 248, 0.94)',
       iconStyle: 'ios',
-      windowControls: 'top',
+      windowControls: 'none',
       fileExtensions: {
         project: '',
         text: ''
-      }
+      },
+      homeIndicator: true,
+      statusBar: true
     },
     linux: {
       wallpaper: 'linear-gradient(135deg, #2c3e50 0%, #4a6741 100%)',
@@ -115,7 +117,30 @@ export function getFileIcon(fileType, osType) {
   return icons[osType]?.[fileType] || icons.windows[fileType] || '📄';
 }
 
-export function getDesktopGridPosition(index, containerWidth, containerHeight) {
+export function getDesktopGridPosition(index, containerWidth, containerHeight, osType = 'windows') {
+  if (osType === 'ios') {
+    // iPhone-style grid: 4 icons per row, centered vertically like real iPhone
+    const iconSize = 60;
+    const spacing = 16;
+    const verticalSpacing = 20;
+    
+    // Center the grid horizontally
+    const totalWidth = 4 * iconSize + 3 * spacing;
+    const marginX = (containerWidth - totalWidth) / 2;
+    
+    // Start from top with proper spacing
+    const startY = 120; // Account for status bar and some padding
+    
+    const row = Math.floor(index / 4);
+    const col = index % 4;
+    
+    return {
+      x: marginX + col * (iconSize + spacing),
+      y: startY + row * (iconSize + verticalSpacing + 30) // Extra space for app names
+    };
+  }
+  
+  // Default desktop grid for other OS
   const iconSize = 80;
   const spacing = 20;
   const margin = 40;

@@ -1,5 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useSwipeGesture } from '../composables/useSwipeGesture.js';
+
 const props = defineProps({
   project: Object,
   theme: String,
@@ -8,7 +10,8 @@ const props = defineProps({
     default: false
   }
 });
-const emit = defineEmits(['close']);
+
+const emit = defineEmits(['close', 'show-app-switcher']);
 
 const projectWindowRef = ref(null);
 const isDragging = ref(false);
@@ -16,8 +19,31 @@ const dragOffset = ref({ x: 0, y: 0 });
 const windowPosition = ref({ x: 100 + Math.random() * 200, y: 50 + Math.random() * 100 });
 const windowSize = ref({ width: 500, height: 400 });
 
+// iOS Swipe Gesture
+const { swipeDirection, isSwipeDetected } = useSwipeGesture(projectWindowRef);
+
+// Watch for swipe up gesture on iOS
+watch([swipeDirection, isSwipeDetected], ([direction, detected]) => {
+  if (detected && direction === 'up' && props.theme === 'ios') {
+    emit('show-app-switcher');
+  }
+});
+
 const windowStyle = computed(() => {
+  if (props.theme === 'ios') {
+    // iOS apps open fullscreen
+    return {
+      position: 'fixed',
+      left: '0px',
+      top: '44px', // Account for status bar
+      width: '100%',
+      height: 'calc(100% - 44px - 88px)', // Account for status bar and dock
+      zIndex: 100
+    };
+  }
+  
   if (!props.draggable) return {};
+  
   return {
     position: 'absolute',
     left: windowPosition.value.x + 'px',
@@ -138,7 +164,14 @@ const onMouseUp = (e) => {
         <span class="minimize"></span>
         <span class="maximize"></span>
       </div>
-      <h2 class="title-bar-text">{{ project.name }}</h2>
+      <!-- iOS Navigation -->
+      <div v-else-if="theme === 'ios'" class="ios-nav">
+        <div class="ios-spacer"></div>
+        <h2 class="ios-title">{{ project.name }}</h2>
+        <div class="ios-spacer"></div>
+      </div>
+      <!-- Default title for other themes -->
+      <h2 v-else class="title-bar-text">{{ project.name }}</h2>
       <!-- Windows Buttons -->
       <div v-if="theme === 'windows'" class="title-bar-buttons">
         <span>_</span>
@@ -180,6 +213,47 @@ const onMouseUp = (e) => {
   background: #cbd5e1;
   border-radius: 3px;
   margin-top: 8px;
+}
+
+/* iOS Navigation Bar */
+.ios-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 16px;
+}
+
+.ios-spacer {
+  width: 60px; /* Balance the layout */
+}
+
+.ios-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  color: #000;
+}
+
+/* iOS Project Window */
+.ios-theme {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: #f2f2f7;
+}
+
+.ios-theme .title-bar {
+  background: rgba(248, 248, 248, 0.94);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  height: 44px;
+}
+
+.ios-theme .p-6 {
+  padding: 16px;
+  background: #ffffff;
+  height: calc(100% - 44px);
 }
 </style>
 

@@ -1,12 +1,12 @@
 <template>
   <div 
     class="desktop-icon"
+    :class="[osType + '-icon', { 'selected': isSelected }]"
     :style="{ 
       left: position.x + 'px', 
       top: position.y + 'px',
       transform: isSelected ? 'scale(1.1)' : 'scale(1)'
     }"
-    :class="{ 'selected': isSelected }"
     @click="handleClick"
     @dblclick="handleDoubleClick"
   >
@@ -25,7 +25,8 @@ import { ref } from 'vue';
 const props = defineProps({
   icon: String,
   label: String,
-  position: Object
+  position: Object,
+  osType: String
 });
 
 const emit = defineEmits(['click', 'double-click']);
@@ -105,21 +106,43 @@ const handleDoubleClick = (e) => {
 }
 
 /* OS-specific icon styles */
-.desktop-icon.windows .icon-image {
+.windows-icon .icon-image {
   border-radius: 8px;
 }
 
-.desktop-icon.macos .icon-image {
+.macos-icon .icon-image {
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.desktop-icon.ios .icon-image {
-  border-radius: 18px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.ios-icon {
+  width: 60px;
+  height: 80px;
 }
 
-.desktop-icon.linux .icon-image {
+.ios-icon .icon-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 13px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
+  font-size: 36px;
+  margin-bottom: 4px;
+  border: none;
+  backdrop-filter: none;
+}
+
+.ios-icon .icon-label {
+  font-size: 11px;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  background: none;
+  padding: 0;
+  max-width: 60px;
+  line-height: 1.1;
+}
+
+.linux-icon .icon-image {
   border-radius: 6px;
 }
 </style>

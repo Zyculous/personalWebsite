@@ -51,6 +51,27 @@
         </div>
       </div>
     </div>
+
+    <!-- iOS Dock -->
+    <div v-else-if="osType === 'ios'" class="ios-dock">
+      <div class="dock-background">
+        <div class="dock-items">
+          <!-- Default iOS apps -->
+          <div class="dock-item">
+            <div class="dock-icon">📞</div>
+          </div>
+          <div class="dock-item">
+            <div class="dock-icon">💬</div>
+          </div>
+          <div class="dock-item">
+            <div class="dock-icon">📧</div>
+          </div>
+          <div class="dock-item theme-toggle" @click="$emit('toggle-theme')" title="Portfolio Settings">
+            <div class="dock-icon">⚙️</div>
+          </div>
+        </div>
+      </div>
+    </div>
     
     <!-- Linux Taskbar -->
     <div v-else-if="osType === 'linux'" class="linux-taskbar-content">
@@ -298,6 +319,54 @@ onUnmounted(() => {
 
 .activities-button:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* iOS Dock */
+.ios-dock {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 100%;
+  padding: 8px 16px 20px 16px;
+}
+
+.dock-background {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ios-dock .dock-items {
+  display: flex;
+  gap: 16px;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.ios-dock .dock-item {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.ios-dock .dock-item:hover {
+  transform: scale(1.1) translateY(-4px);
+}
+
+.ios-dock .dock-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* OS-specific styling */

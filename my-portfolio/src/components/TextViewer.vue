@@ -20,12 +20,21 @@
           <div class="control-button close" @click="$emit('close')">✕</div>
         </template>
         <template v-else-if="theme === 'ios'">
-          <div class="ios-handle"></div>
+          <div class="ios-nav">
+            <div class="ios-spacer"></div>
+            <h2 class="ios-title">{{ title }}</h2>
+            <div class="ios-spacer"></div>
+          </div>
+        </template>
+        <template v-else-if="theme === 'linux'">
+          <div class="control-button minimize">_</div>
+          <div class="control-button maximize">☐</div>
+          <div class="control-button close" @click="$emit('close')">✕</div>
         </template>
       </div>
       
-      <!-- Title -->
-      <div class="window-title">{{ title }}</div>
+      <!-- Title for non-iOS themes -->
+      <div v-if="theme !== 'ios'" class="window-title">{{ title }}</div>
       
       <!-- Menu (for some OS themes) -->
       <div v-if="theme === 'windows'" class="window-menu">
@@ -50,7 +59,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useSwipeGesture } from '../composables/useSwipeGesture.js';
 
 const props = defineProps({
   theme: String,
@@ -58,7 +68,7 @@ const props = defineProps({
   title: String
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'show-app-switcher']);
 
 const windowRef = ref(null);
 const isDragging = ref(false);
@@ -66,12 +76,35 @@ const dragOffset = ref({ x: 0, y: 0 });
 const windowPosition = ref({ x: 200, y: 100 });
 const windowSize = ref({ width: 600, height: 400 });
 
-const windowStyle = computed(() => ({
-  left: windowPosition.value.x + 'px',
-  top: windowPosition.value.y + 'px',
-  width: windowSize.value.width + 'px',
-  height: windowSize.value.height + 'px'
-}));
+// iOS Swipe Gesture
+const { swipeDirection, isSwipeDetected } = useSwipeGesture(windowRef);
+
+// Watch for swipe up gesture on iOS
+watch([swipeDirection, isSwipeDetected], ([direction, detected]) => {
+  if (detected && direction === 'up' && props.theme === 'ios') {
+    emit('show-app-switcher');
+  }
+});
+
+const windowStyle = computed(() => {
+  if (props.theme === 'ios') {
+    return {
+      position: 'fixed',
+      left: '0px',
+      top: '44px',
+      width: '100%',
+      height: 'calc(100% - 44px - 88px)',
+      zIndex: 100
+    };
+  }
+  
+  return {
+    left: windowPosition.value.x + 'px',
+    top: windowPosition.value.y + 'px',
+    width: windowSize.value.width + 'px',
+    height: windowSize.value.height + 'px'
+  };
+});
 
 const getLineCount = () => {
   return props.content.split('\n').length;
@@ -281,15 +314,46 @@ const stopDrag = () => {
 }
 
 .ios-text-viewer {
-  border-radius: 20px;
+  border-radius: 0;
   border: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: none;
+  background: #f2f2f7;
 }
 
 .ios-text-viewer .text-viewer-header {
-  background: #f8f8f8;
-  height: 36px;
-  justify-content: center;
+  background: rgba(248, 248, 248, 0.94);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  height: 44px;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.ios-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 16px;
+}
+
+.ios-spacer {
+  width: 60px; /* Balance the layout */
+}
+
+.ios-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  color: #000;
+}
+
+.ios-text-viewer .text-content {
+  background: #ffffff;
+  padding: 16px;
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .linux-text-viewer {
