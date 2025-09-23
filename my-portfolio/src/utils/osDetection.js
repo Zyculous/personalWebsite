@@ -23,8 +23,9 @@ export function detectOS() {
   
   // Desktop OS detection
   if (userAgent.indexOf("Mac") !== -1 || platform.indexOf("Mac") !== -1) {
-    console.log('Detected: macOS');
-    return 'macos';
+    console.log('Detected: macOS, defaulting to macOS Sonoma');
+    // Always return macOS Sonoma for any macOS detection
+    return 'macos-sonoma';
   }
   
   if (userAgent.indexOf("Win") !== -1 || platform.indexOf("Win") !== -1) {
@@ -136,6 +137,227 @@ export function getDesktopConfig(osType) {
       },
       theme: 'Fluent 2'
     },
+    'macos-tiger': {
+      wallpaper: 'url("/wallpapers/macos-tiger.jpg"), radial-gradient(ellipse at center, #87CEEB 0%, #4682B4 50%, #2F4F4F 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.95)',
+      iconStyle: 'macos-tiger',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Aqua'
+    },
+    'macos-leopard': {
+      wallpaper: 'url("/wallpapers/macos-leopard.jpg"), radial-gradient(ellipse at center, #4A4A4A 0%, #2F2F2F 50%, #1A1A1A 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.95)',
+      iconStyle: 'macos-leopard',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Unified'
+    },
+    'macos-snow-leopard': {
+      wallpaper: 'url("/wallpapers/macos-snow-leopard.jpg"), radial-gradient(ellipse at center, #E0E0E0 0%, #C0C0C0 50%, #A0A0A0 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.95)',
+      iconStyle: 'macos-snow-leopard',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Aqua'
+    },
+    'macos-lion': {
+      wallpaper: 'url("/wallpapers/macos-lion.jpg"), radial-gradient(ellipse at center, #8B4513 0%, #654321 50%, #3E2723 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.95)',
+      iconStyle: 'macos-lion',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Aqua'
+    },
+    'macos-mountain-lion': {
+      wallpaper: 'url("/wallpapers/macos-mountain-lion.jpg"), radial-gradient(ellipse at center, #696969 0%, #4A4A4A 50%, #2F2F2F 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.95)',
+      iconStyle: 'macos-mountain-lion',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Aqua'
+    },
+    'macos-mavericks': {
+      wallpaper: 'url("/wallpapers/macos-mavericks.jpg"), radial-gradient(ellipse at center, #1E90FF 0%, #4682B4 50%, #2F4F4F 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.95)',
+      iconStyle: 'macos-mavericks',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Aqua'
+    },
+    'macos-yosemite': {
+      wallpaper: 'url("/wallpapers/macos-yosemite.jpg"), radial-gradient(ellipse at center, #FF6B35 0%, #F7931E 25%, #FFD23F 50%, #06FFA5 75%, #4ECDC4 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.9)',
+      iconStyle: 'macos-yosemite',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Yosemite'
+    },
+    'macos-el-capitan': {
+      wallpaper: 'url("/wallpapers/macos-el-capitan.jpg"), radial-gradient(ellipse at center, #8B4513 0%, #A0522D 30%, #CD853F 60%, #DEB887 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.9)',
+      iconStyle: 'macos-el-capitan',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'El Capitan'
+    },
+    'macos-sierra': {
+      wallpaper: 'url("/wallpapers/macos-sierra.jpg"), radial-gradient(ellipse at center, #4682B4 0%, #5F9EA0 30%, #708090 60%, #2F4F4F 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.9)',
+      iconStyle: 'macos-sierra',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Sierra'
+    },
+    'macos-high-sierra': {
+      wallpaper: 'url("/wallpapers/macos-high-sierra.jpg"), radial-gradient(ellipse at center, #2F4F4F 0%, #4682B4 30%, #5F9EA0 60%, #87CEEB 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.9)',
+      iconStyle: 'macos-high-sierra',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'High Sierra'
+    },
+    'macos-mojave': {
+      wallpaper: 'url("/wallpapers/macos-mojave.jpg"), radial-gradient(ellipse at center, #8B4513 0%, #A0522D 25%, #D2691E 50%, #FF8C00 75%, #FFA500 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.9)',
+      iconStyle: 'macos-mojave',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Mojave'
+    },
+    'macos-catalina': {
+      wallpaper: 'url("/wallpapers/macos-catalina.jpg"), radial-gradient(ellipse at center, #FF4500 0%, #FF6347 25%, #FFA07A 50%, #FFE4B5 75%, #F0F8FF 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.9)',
+      iconStyle: 'macos-catalina',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Catalina'
+    },
+    'macos-big-sur': {
+      wallpaper: 'url("/wallpapers/macos-big-sur.jpg"), radial-gradient(ellipse at center, #FF6B35 0%, #F7931E 25%, #FFD23F 50%, #06FFA5 75%, #4ECDC4 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.8)',
+      iconStyle: 'macos-big-sur',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Big Sur'
+    },
+    'macos-monterey': {
+      wallpaper: 'url("/wallpapers/macos-monterey.jpg"), radial-gradient(ellipse at center, #1E3A8A 0%, #3B82F6 25%, #06B6D4 50%, #10B981 75%, #F59E0B 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.8)',
+      iconStyle: 'macos-monterey',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Monterey'
+    },
+    'macos-ventura': {
+      wallpaper: 'url("/wallpapers/macos-ventura.jpg"), radial-gradient(ellipse at center, #0F172A 0%, #1E293B 25%, #334155 50%, #475569 75%, #64748B 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.8)',
+      iconStyle: 'macos-ventura',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Ventura'
+    },
+    'macos-sonoma': {
+      wallpaper: 'url("/wallpapers/macos-sonoma.jpg"), radial-gradient(ellipse at center, #FF6B35 0%, #F7931E 25%, #FFD23F 50%, #06FFA5 75%, #4ECDC4 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.8)',
+      iconStyle: 'macos-sonoma',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Sonoma'
+    },
+    'macos-sequoia': {
+      wallpaper: 'url("/wallpapers/macos-sequoia.jpg"), radial-gradient(ellipse at center, #065F46 0%, #047857 25%, #059669 50%, #10B981 75%, #34D399 100%)',
+      taskbarHeight: '22px',
+      taskbarPosition: 'top',
+      taskbarColor: 'rgba(255, 255, 255, 0.8)',
+      iconStyle: 'macos-sequoia',
+      windowControls: 'left',
+      fileExtensions: {
+        project: '.app',
+        text: '.txt'
+      },
+      theme: 'Sequoia'
+    },
     macos: {
       wallpaper: 'url("/wallpapers/macos.jpg"), radial-gradient(ellipse at center, #FF6B35 0%, #F7931E 25%, #FFD23F 50%, #06FFA5 75%, #4ECDC4 100%)',
       taskbarHeight: '60px',
@@ -206,7 +428,10 @@ export function getFileIcon(fileType, osType) {
     }
   };
   
-  return icons[osType]?.[fileType] || icons.windows[fileType] || '📄';
+  // Normalize macOS variants to 'macos' for icon selection
+  const normalizedOsType = osType.startsWith('macos') ? 'macos' : osType;
+  
+  return icons[normalizedOsType]?.[fileType] || icons.windows[fileType] || '📄';
 }
 
 export function getDesktopGridPosition(index, containerWidth, containerHeight, osType = 'windows') {

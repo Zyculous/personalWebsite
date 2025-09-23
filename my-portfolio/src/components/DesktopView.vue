@@ -1,5 +1,12 @@
 <template>
   <div class="desktop-container" :class="`${osType}-desktop`">
+    <!-- macOS Menu Bar -->
+    <MacOSMenuBar 
+      v-if="osType.includes('macos')" 
+      :theme="osType"
+      @toggle-theme="$emit('toggle-theme')"
+    />
+    
     <!-- Desktop Background -->
     <div 
       class="desktop-background"
@@ -103,6 +110,7 @@ import ProjectWindow from './ProjectWindow.vue';
 import TextViewer from './TextViewer.vue';
 import Taskbar from './Taskbar.vue';
 import AppSwitcher from './AppSwitcher.vue';
+import MacOSMenuBar from './MacOSMenuBar.vue';
 
 const props = defineProps({
   projects: Array,
@@ -509,6 +517,51 @@ onUnmounted(() => {
   min-height: 100vh;
   width: 100%;
   position: relative;
+}
+
+/* macOS Desktop Styles */
+.macos-tiger-desktop,
+.macos-leopard-desktop,
+.macos-snow-leopard-desktop,
+.macos-lion-desktop,
+.macos-mountain-lion-desktop,
+.macos-mavericks-desktop,
+.macos-yosemite-desktop,
+.macos-el-capitan-desktop,
+.macos-sierra-desktop,
+.macos-high-sierra-desktop,
+.macos-mojave-desktop,
+.macos-catalina-desktop,
+.macos-big-sur-desktop,
+.macos-monterey-desktop,
+.macos-ventura-desktop,
+.macos-sonoma-desktop,
+.macos-sequoia-desktop,
+.macos-desktop {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Adjust desktop content for macOS menu bar */
+.macos-tiger-desktop .desktop-background,
+.macos-leopard-desktop .desktop-background,
+.macos-snow-leopard-desktop .desktop-background,
+.macos-lion-desktop .desktop-background,
+.macos-mountain-lion-desktop .desktop-background,
+.macos-mavericks-desktop .desktop-background,
+.macos-yosemite-desktop .desktop-background,
+.macos-el-capitan-desktop .desktop-background,
+.macos-sierra-desktop .desktop-background,
+.macos-high-sierra-desktop .desktop-background,
+.macos-mojave-desktop .desktop-background,
+.macos-catalina-desktop .desktop-background,
+.macos-big-sur-desktop .desktop-background,
+.macos-monterey-desktop .desktop-background,
+.macos-ventura-desktop .desktop-background,
+.macos-sonoma-desktop .desktop-background,
+.macos-sequoia-desktop .desktop-background,
+.macos-desktop .desktop-background {
+  padding-top: 24px;
+  height: calc(100vh - 24px);
 }
 
 .linux-desktop {
