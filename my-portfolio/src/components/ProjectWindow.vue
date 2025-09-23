@@ -33,13 +33,13 @@ watch([swipeDirection, isSwipeDetected], ([direction, detected]) => {
 
 const windowStyle = computed(() => {
   if (props.theme === 'ios') {
-    // iOS apps open fullscreen without taskbar
+    // iOS apps open fullscreen
     return {
       position: 'fixed',
       left: '0px',
-      top: '44px', // Account for status bar
+      top: '0px',
       width: '100%',
-      height: 'calc(100% - 44px)', // Only account for status bar
+      height: '100%',
       zIndex: 100
     };
   }

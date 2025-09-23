@@ -98,9 +98,9 @@ const windowStyle = computed(() => {
     return {
       position: 'fixed',
       left: '0px',
-      top: '44px',
+      top: '0px',
       width: '100%',
-      height: 'calc(100% - 44px)', // Only account for status bar
+      height: '100%',
       zIndex: 100
     };
   }

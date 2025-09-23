@@ -1,20 +1,5 @@
 <template>
   <div class="desktop-container" :class="`${osType}-desktop`">
-    <!-- iOS Status Bar -->
-    <div v-if="osType === 'ios'" class="ios-status-bar">
-      <div class="status-left">
-        <span class="time">{{ currentTime }}</span>
-      </div>
-      <div class="status-center">
-        <div class="notch"></div>
-      </div>
-      <div class="status-right">
-        <span class="battery">100%</span>
-        <span class="signal">📶</span>
-        <span class="wifi">📶</span>
-      </div>
-    </div>
-
     <!-- Desktop Background -->
     <div 
       class="desktop-background"
@@ -130,7 +115,6 @@ const activeProjects = ref([]);
 const showAbout = ref(false);
 const isAppSwitcherVisible = ref(false);
 const desktopSize = ref({ width: window.innerWidth, height: window.innerHeight });
-const currentTime = ref('');
 
 // Session tracking for app switcher
 const sessionApps = ref(new Map()); // Track all apps opened this session
@@ -317,25 +301,11 @@ const updateDesktopSize = () => {
   desktopSize.value = { width: window.innerWidth, height: window.innerHeight };
 };
 
-const updateTime = () => {
-  const now = new Date();
-  currentTime.value = now.toLocaleTimeString([], { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    hour12: false 
-  });
-};
-
 onMounted(() => {
   console.log('DesktopView mounted');
   console.log('Projects:', props.projects);
   console.log('OS Type:', props.osType);
   window.addEventListener('resize', updateDesktopSize);
-  
-  if (props.osType === 'ios') {
-    updateTime();
-    setInterval(updateTime, 1000);
-  }
 });
 </script>
 
@@ -422,49 +392,6 @@ onMounted(() => {
 
 .linux-desktop {
   font-family: 'Ubuntu', 'Liberation Sans', sans-serif;
-}
-
-/* iOS Status Bar */
-.ios-status-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 44px;
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(20px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 1000;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.status-left {
-  flex: 1;
-}
-
-.status-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.notch {
-  width: 120px;
-  height: 20px;
-  background: black;
-  border-radius: 0 0 12px 12px;
-}
-
-.status-right {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 4px;
 }
 
 /* iOS Home Indicator */

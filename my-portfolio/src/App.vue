@@ -94,18 +94,5 @@ body {
     position: relative;
     margin: 0 auto;
   }
-  
-  .ios-mode > *::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 30px;
-    background: #1a1a1a;
-    border-radius: 0 0 20px 20px;
-    z-index: 1001;
-  }
 }
 </style>
