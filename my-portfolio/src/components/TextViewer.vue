@@ -14,7 +14,7 @@
           <div class="control-button minimize"></div>
           <div class="control-button maximize"></div>
         </template>
-        <template v-else-if="theme === 'windows'">
+        <template v-else-if="theme.startsWith('windows')">
           <div class="control-button minimize" @click="minimizeWindow">_</div>
           <div class="control-button maximize">☐</div>
           <div class="control-button close" @click="$emit('close')">✕</div>
@@ -37,7 +37,7 @@
       <div v-if="theme !== 'ios'" class="window-title">{{ title }}</div>
       
       <!-- Menu (for some OS themes) -->
-      <div v-if="theme === 'windows'" class="window-menu">
+      <div v-if="theme.startsWith('windows')" class="window-menu">
         <span>File</span>
         <span>Edit</span>
         <span>View</span>
@@ -51,7 +51,7 @@
     </div>
     
     <!-- Status Bar (Windows/Linux) -->
-    <div v-if="theme === 'windows' || theme === 'linux'" class="status-bar">
+    <div v-if="theme.startsWith('windows') || theme === 'linux'" class="status-bar">
       <span>{{ getLineCount() }} lines</span>
       <span>{{ getCharCount() }} characters</span>
     </div>
@@ -181,6 +181,16 @@ const minimizeWindow = () => {
   align-items: center;
   padding: 0 12px;
   gap: 8px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  z-index: 20;
+}
+
+.window-controls.macos {
+  left: 12px;
+  right: auto;
 }
 
 .window-controls.macos .control-button {
@@ -203,22 +213,36 @@ const minimizeWindow = () => {
 }
 
 .window-controls.windows .control-button {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 12px;
-  margin: 0 2px;
+  margin: 0 1px;
+  background: transparent;
+  border: none;
+  transition: background-color 0.1s ease;
+  user-select: none;
+  z-index: 25;
 }
 
 .window-controls.windows .control-button:hover {
   background: rgba(0, 0, 0, 0.1);
 }
 
+.window-controls.windows .control-button:active {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .window-controls.windows .close:hover {
   background: #e81123;
+  color: white;
+}
+
+.window-controls.windows .close:active {
+  background: #c50e1f;
   color: white;
 }
 

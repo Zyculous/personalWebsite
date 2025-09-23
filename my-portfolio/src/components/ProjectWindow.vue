@@ -15,6 +15,8 @@ const emit = defineEmits(['close', 'show-app-switcher', 'minimize']);
 
 const projectWindowRef = ref(null);
 const isDragging = ref(false);
+const isResizing = ref(false);
+const resizeDirection = ref('');
 const dragOffset = ref({ x: 0, y: 0 });
 const windowPosition = ref({ x: 100 + Math.random() * 200, y: 50 + Math.random() * 100 });
 const windowSize = ref({ width: 500, height: 400 });
@@ -90,8 +92,76 @@ const drag = (e) => {
 
 const stopDrag = () => {
   isDragging.value = false;
+  isResizing.value = false;
+  resizeDirection.value = '';
+  document.body.style.cursor = 'default';
   document.removeEventListener('mousemove', drag);
+  document.removeEventListener('mousemove', resize);
   document.removeEventListener('mouseup', stopDrag);
+};
+
+// Resize functionality
+const startResize = (direction, event) => {
+  if (!props.draggable) return;
+  
+  isResizing.value = true;
+  resizeDirection.value = direction;
+  event.stopPropagation();
+  
+  document.addEventListener('mousemove', resize);
+  document.addEventListener('mouseup', stopDrag);
+  
+  // Set cursor based on direction
+  const cursors = {
+    'n': 'n-resize',
+    's': 's-resize',
+    'e': 'e-resize',
+    'w': 'w-resize',
+    'ne': 'ne-resize',
+    'nw': 'nw-resize',
+    'se': 'se-resize',
+    'sw': 'sw-resize'
+  };
+  document.body.style.cursor = cursors[direction] || 'default';
+};
+
+const resize = (e) => {
+  if (!isResizing.value) return;
+  
+  const direction = resizeDirection.value;
+  const minWidth = 300;
+  const minHeight = 200;
+  
+  let newWidth = windowSize.value.width;
+  let newHeight = windowSize.value.height;
+  let newX = windowPosition.value.x;
+  let newY = windowPosition.value.y;
+  
+  if (direction.includes('e')) {
+    newWidth = Math.max(minWidth, e.clientX - windowPosition.value.x);
+  }
+  if (direction.includes('w')) {
+    const deltaX = e.clientX - windowPosition.value.x;
+    if (windowSize.value.width - deltaX >= minWidth) {
+      newWidth = windowSize.value.width - deltaX;
+      newX = e.clientX;
+    }
+  }
+  if (direction.includes('s')) {
+    newHeight = Math.max(minHeight, e.clientY - windowPosition.value.y);
+  }
+  if (direction.includes('n')) {
+    const deltaY = e.clientY - windowPosition.value.y;
+    if (windowSize.value.height - deltaY >= minHeight) {
+      newHeight = windowSize.value.height - deltaY;
+      newY = e.clientY;
+    }
+  }
+  
+  windowSize.value.width = newWidth;
+  windowSize.value.height = newHeight;
+  windowPosition.value.x = newX;
+  windowPosition.value.y = newY;
 };
 
 // Window actions
@@ -101,7 +171,10 @@ const minimizeWindow = () => {
 </script>
 
 <template>
-  <div class="project-window mb-8" :class="theme + '-theme'" :style="windowStyle" ref="projectWindowRef">
+  <div class="project-window" :class="[
+    theme + '-theme',
+    { 'mb-8': !draggable, 'draggable-window': draggable }
+  ]" :style="windowStyle" ref="projectWindowRef">
     <div class="title-bar" @mousedown="startDrag">
       <!-- macOS Buttons -->
       <div v-if="theme === 'macos'" class="title-bar-buttons">
@@ -116,16 +189,25 @@ const minimizeWindow = () => {
         <div class="ios-spacer"></div>
       </div>
       <!-- Default title for other themes -->
-      <h2 v-else class="title-bar-text">{{ project.name }}</h2>
+      <h2 v-else-if="!theme.startsWith('windows')" class="title-bar-text">{{ project.name }}</h2>
+      
+      <!-- Linux Buttons -->
+      <div v-if="theme === 'linux'" class="title-bar-buttons windows-buttons">
+        <span @click="minimizeWindow" class="win-button minimize-btn">_</span>
+        <span class="win-button maximize-btn">&#9633;</span>
+        <span @click="$emit('close')" class="win-button close-btn">X</span>
+      </div>
       
       <!-- Windows Buttons - all versions -->
-      <div v-if="theme.startsWith('windows')" class="title-bar-buttons">
+      <div v-if="theme.startsWith('windows')" class="title-bar-buttons windows-buttons" :class="{
+        'windows-11-buttons': theme === 'windows-11'
+      }">
         <span @click="minimizeWindow" class="win-button minimize-btn">_</span>
         <span class="win-button maximize-btn">&#9633;</span>
         <span @click="$emit('close')" class="win-button close-btn">X</span>
       </div>
     </div>
-    <div class="window-content relative h-96 overflow-y-auto" :class="{
+    <div class="window-content relative overflow-y-auto" :class="{
       'windows-98-content': theme === 'windows-98',
       'windows-xp-content': theme === 'windows-xp',
       'windows-vista-content': theme === 'windows-vista',
@@ -135,7 +217,7 @@ const minimizeWindow = () => {
       'windows-11-content': theme === 'windows-11',
       'p-6': !theme.startsWith('windows') && theme !== 'ios',
       'ios-content': theme === 'ios'
-    }">
+    }" :style="{ height: theme === 'ios' ? '100%' : 'calc(100% - 32px)' }">
       <p class="text-base mb-4">{{ project.description }}</p>
       <div class="relative h-full">
         <img v-for="(img, index) in project.images" :key="img" :src="img" 
@@ -148,6 +230,21 @@ const minimizeWindow = () => {
     <div v-if="theme === 'ios'" class="ios-swipe-bar">
       <div class="ios-swipe-indicator"></div>
     </div>
+    
+    <!-- Resize handles for draggable windows (not iOS) -->
+    <template v-if="draggable && theme !== 'ios'">
+      <!-- Edge handles -->
+      <div class="resize-handle resize-n" @mousedown="startResize('n', $event)"></div>
+      <div class="resize-handle resize-s" @mousedown="startResize('s', $event)"></div>
+      <div class="resize-handle resize-e" @mousedown="startResize('e', $event)"></div>
+      <div class="resize-handle resize-w" @mousedown="startResize('w', $event)"></div>
+      
+      <!-- Corner handles -->
+      <div class="resize-handle resize-ne" @mousedown="startResize('ne', $event)"></div>
+      <div class="resize-handle resize-nw" @mousedown="startResize('nw', $event)"></div>
+      <div class="resize-handle resize-se" @mousedown="startResize('se', $event)"></div>
+      <div class="resize-handle resize-sw" @mousedown="startResize('sw', $event)"></div>
+    </template>
   </div>
 </template>
 
@@ -230,8 +327,17 @@ const minimizeWindow = () => {
   border: 1px outset #C0C0C0;
   width: 16px;
   height: 14px;
-  font-size: 10px;
+  font-size: 8px;
   color: black;
+  margin: 0 1px;
+}
+
+.windows-98-theme .win-button:hover {
+  background: #E0E0E0;
+}
+
+.windows-98-theme .win-button:active {
+  border: 1px inset #C0C0C0;
 }
 
 /* Windows XP Theme */
@@ -256,9 +362,18 @@ const minimizeWindow = () => {
   border: 1px solid #8E8E8E;
   width: 18px;
   height: 16px;
-  font-size: 10px;
+  font-size: 9px;
   color: black;
   border-radius: 2px;
+  margin: 0 1px;
+}
+
+.windows-xp-theme .win-button:hover {
+  background: linear-gradient(145deg, #F0F0F0 0%, #D0D0D0 100%);
+}
+
+.windows-xp-theme .win-button:active {
+  background: linear-gradient(145deg, #C0C0C0 0%, #A0A0A0 100%);
 }
 
 /* Windows Vista Theme */
@@ -284,11 +399,20 @@ const minimizeWindow = () => {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
   border: 1px solid rgba(0, 0, 0, 0.2);
   width: 22px;
-  height: 20px;
-  font-size: 11px;
+  height: 18px;
+  font-size: 10px;
   color: black;
   border-radius: 3px;
   backdrop-filter: blur(5px);
+  margin: 0 1px;
+}
+
+.windows-vista-theme .win-button:hover {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
+}
+
+.windows-vista-theme .win-button:active {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
 }
 
 /* Windows 7 Theme */
@@ -314,11 +438,20 @@ const minimizeWindow = () => {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
   border: 1px solid rgba(0, 0, 0, 0.15);
   width: 22px;
-  height: 20px;
-  font-size: 11px;
+  height: 18px;
+  font-size: 10px;
   color: black;
   border-radius: 3px;
   backdrop-filter: blur(3px);
+  margin: 0 1px;
+}
+
+.windows-7-theme .win-button:hover {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+}
+
+.windows-7-theme .win-button:active {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
 }
 
 /* Windows 8 Theme */
@@ -343,13 +476,18 @@ const minimizeWindow = () => {
   border: none;
   width: 32px;
   height: 28px;
-  font-size: 12px;
+  font-size: 11px;
   color: white;
   font-weight: 300;
+  margin: 0;
 }
 
 .windows-8-theme .win-button:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.windows-8-theme .win-button:active {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Windows 10 Theme */
@@ -372,18 +510,28 @@ const minimizeWindow = () => {
 .windows-10-theme .win-button {
   background: transparent;
   border: none;
-  width: 46px;
-  height: 30px;
-  font-size: 12px;
+  width: 44px;
+  height: 28px;
+  font-size: 11px;
   color: #333333;
+  margin: 0;
 }
 
 .windows-10-theme .win-button:hover {
   background: #E5E5E5;
 }
 
+.windows-10-theme .win-button:active {
+  background: #CCCCCC;
+}
+
 .windows-10-theme .close-btn:hover {
   background: #E81123;
+  color: white;
+}
+
+.windows-10-theme .close-btn:active {
+  background: #C50E1F;
   color: white;
 }
 
@@ -409,14 +557,19 @@ const minimizeWindow = () => {
   background: transparent;
   border: none;
   width: 46px;
-  height: 30px;
+  height: 32px;
   font-size: 12px;
   color: #333333;
   border-radius: 4px;
+  margin: 0;
 }
 
 .windows-11-theme .win-button:hover {
   background: #F0F0F0;
+}
+
+.windows-11-theme .win-button:active {
+  background: #E0E0E0;
 }
 
 .windows-11-theme .close-btn:hover {
@@ -424,7 +577,12 @@ const minimizeWindow = () => {
   color: white;
 }
 
-/* General Windows button styles */
+.windows-11-theme .close-btn:active {
+  background: #A23517;
+  color: white;
+}
+
+/* General Windows button styles - enhanced for better clickability */
 .win-button {
   display: inline-flex;
   align-items: center;
@@ -432,10 +590,68 @@ const minimizeWindow = () => {
   cursor: pointer;
   transition: all 0.1s ease;
   user-select: none;
+  min-width: 20px;
+  min-height: 20px;
+  position: relative;
+  z-index: 20;
+  border: none;
+  font-family: inherit;
 }
 
 .win-button:active {
   transform: scale(0.95);
+}
+
+/* Enhanced title bar buttons container */
+.title-bar-buttons {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 15;
+  gap: 1px;
+}
+
+/* All Windows buttons enhanced positioning */
+.windows-buttons {
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  z-index: 20 !important;
+}
+
+/* Theme-specific button container heights */
+.windows-98-theme .windows-buttons {
+  height: 18px !important;
+}
+
+.windows-xp-theme .windows-buttons {
+  height: 22px !important;
+}
+
+.windows-vista-theme .windows-buttons {
+  height: 30px !important;
+}
+
+.windows-7-theme .windows-buttons {
+  height: 28px !important;
+}
+
+.windows-8-theme .windows-buttons {
+  height: 32px !important;
+}
+
+.windows-10-theme .windows-buttons {
+  height: 32px !important;
+}
+
+.windows-11-theme .windows-buttons {
+  height: 32px !important;
 }
 
 /* Windows Content Styling */
@@ -501,7 +717,194 @@ const minimizeWindow = () => {
 .ios-content {
   padding: 16px;
   background: #ffffff;
-  height: calc(100% - 44px);
+}
+
+/* Windows 11 specific button styling (inherits positioning from .windows-buttons) */
+.windows-11-buttons {
+  height: 32px !important;
+}
+
+.windows-11-buttons .win-button {
+  width: 46px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 10px !important;
+  cursor: pointer !important;
+  transition: background-color 0.1s ease !important;
+}
+
+.windows-11-buttons .win-button:hover {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.windows-11-buttons .close-btn:hover {
+  background: #e81123 !important;
+  color: white !important;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  z-index: 10;
+  background: transparent;
+}
+
+.resize-handle:hover {
+  background: rgba(0, 123, 255, 0.3);
+}
+
+/* Draggable window specific styles */
+.draggable-window {
+  margin: 0 !important;
+}
+
+/* macOS theme styles */
+.macos-theme .title-bar {
+  background: linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 100%);
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  height: 28px;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #c0c0c0;
+}
+
+.macos-theme .title-bar-buttons {
+  left: 8px !important;
+  right: auto !important;
+  gap: 8px;
+}
+
+.macos-theme .close,
+.macos-theme .minimize,
+.macos-theme .maximize {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.macos-theme .close {
+  background: #ff5f57;
+}
+
+.macos-theme .minimize {
+  background: #ffbd2e;
+}
+
+.macos-theme .maximize {
+  background: #28ca42;
+}
+
+.macos-theme .close:hover {
+  background: #ff4136;
+}
+
+.macos-theme .minimize:hover {
+  background: #ffaa00;
+}
+
+.macos-theme .maximize:hover {
+  background: #2ecc40;
+}
+
+/* Linux theme styles */
+.linux-theme .title-bar {
+  background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+  color: #333;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 13px;
+  height: 32px;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.linux-theme .title-bar-buttons {
+  height: 32px !important;
+}
+
+.linux-theme .win-button {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 28px;
+  font-size: 12px;
+  color: #333;
+  margin: 0;
+}
+
+.linux-theme .win-button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.linux-theme .close-btn:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+.resize-n, .resize-s {
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.resize-n {
+  top: -2px;
+  cursor: n-resize;
+}
+
+.resize-s {
+  bottom: -2px;
+  cursor: s-resize;
+}
+
+.resize-e, .resize-w {
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.resize-e {
+  right: -2px;
+  cursor: e-resize;
+}
+
+.resize-w {
+  left: -2px;
+  cursor: w-resize;
+}
+
+.resize-ne, .resize-nw, .resize-se, .resize-sw {
+  width: 8px;
+  height: 8px;
+}
+
+.resize-ne {
+  top: -4px;
+  right: -4px;
+  cursor: ne-resize;
+}
+
+.resize-nw {
+  top: -4px;
+  left: -4px;
+  cursor: nw-resize;
+}
+
+.resize-se {
+  bottom: -4px;
+  right: -4px;
+  cursor: se-resize;
+}
+
+.resize-sw {
+  bottom: -4px;
+  left: -4px;
+  cursor: sw-resize;
 }
 </style>
 
