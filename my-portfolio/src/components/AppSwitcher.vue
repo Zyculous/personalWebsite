@@ -68,7 +68,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useSwipeGesture } from '../composables/useSwipeGesture.js'
 
 const props = defineProps({
   isVisible: Boolean,
@@ -100,51 +99,107 @@ const handleOverlayClick = (e) => {
   }
 }
 
-// Individual card swipe handling
-let cardSwipeDetectors = []
-
+// Enhanced swipe handling with CSS transitions
 const setupCardSwipeDetection = () => {
-  // Clear existing detectors
-  cardSwipeDetectors.forEach(detector => {
-    if (detector.removeSwipeListeners) {
-      detector.removeSwipeListeners()
+  if (!appCardRefs.value.length) return
+
+  appCardRefs.value.forEach((cardElement, index) => {
+    if (!cardElement || !props.openApps[index]) return
+
+    const app = props.openApps[index]
+    let startY = 0
+    let currentY = 0
+    let isTracking = false
+
+    const handleTouchStart = (e) => {
+      e.preventDefault()
+      isTracking = true
+      startY = e.touches[0].clientY
+      currentY = startY
+      
+      console.log('Touch start on card:', app.name, 'at Y:', startY)
+      
+      // Disable transitions for real-time movement
+      cardElement.style.transition = 'none'
+    }
+
+    const handleTouchMove = (e) => {
+      if (!isTracking) return
+      e.preventDefault()
+      
+      currentY = e.touches[0].clientY
+      const deltaY = startY - currentY // Positive for upward swipe
+      
+      console.log('Touch move deltaY:', deltaY)
+      
+      // Only allow upward movement
+      if (deltaY > 0) {
+        const progress = Math.min(deltaY / 200, 1) // Max progress at 200px
+        const translateY = -deltaY
+        const scale = 1 - (progress * 0.1) // Slightly scale down
+        const opacity = 1 - (progress * 0.3) // Fade out slightly
+        
+        // Apply real-time transformation
+        cardElement.style.transform = `translateY(${translateY}px) scale(${scale})`
+        cardElement.style.opacity = opacity
+      }
+    }
+
+    const handleTouchEnd = (e) => {
+      if (!isTracking) return
+      isTracking = false
+      
+      const deltaY = startY - currentY
+      const threshold = 120 // Threshold for closing
+      
+      console.log('Touch end deltaY:', deltaY, 'threshold:', threshold)
+      
+      if (deltaY > threshold) {
+        console.log('Closing app:', app.name)
+        // Animate card out and close app
+        cardElement.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        cardElement.style.transform = 'translateY(-600px) scale(0.8)'
+        cardElement.style.opacity = '0'
+        
+        setTimeout(() => {
+          closeApp(app)
+        }, 300)
+      } else {
+        console.log('Resetting card position')
+        // Animate back to original position
+        cardElement.style.transition = 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        cardElement.style.transform = 'translateY(0px) scale(1)'
+        cardElement.style.opacity = '1'
+      }
+    }
+
+    // Add touch event listeners
+    cardElement.addEventListener('touchstart', handleTouchStart, { passive: false })
+    cardElement.addEventListener('touchmove', handleTouchMove, { passive: false })
+    cardElement.addEventListener('touchend', handleTouchEnd, { passive: false })
+    
+    // Store cleanup function
+    cardElement._cleanup = () => {
+      cardElement.removeEventListener('touchstart', handleTouchStart)
+      cardElement.removeEventListener('touchmove', handleTouchMove) 
+      cardElement.removeEventListener('touchend', handleTouchEnd)
     }
   })
-  cardSwipeDetectors = []
+}
 
-  // Setup swipe detection for each app card
-  if (appCardRefs.value.length > 0) {
-    appCardRefs.value.forEach((cardElement, index) => {
-      if (cardElement && props.openApps[index]) {
-        const app = props.openApps[index]
-        const cardRef = ref(cardElement)
-        
-        const { swipeDirection, isSwipeDetected } = useSwipeGesture(cardRef, {
-          threshold: 60,
-          restraint: 150,
-          allowedTime: 400
-        })
-
-        // Watch for swipe up on this specific card
-        const stopWatcher = watch([swipeDirection, isSwipeDetected], ([direction, detected]) => {
-          if (detected && direction === 'up') {
-            closeApp(app)
-          }
-        })
-
-        cardSwipeDetectors.push({
-          stopWatcher,
-          removeSwipeListeners: () => stopWatcher()
-        })
-      }
-    })
-  }
+const cleanupSwipeDetection = () => {
+  appCardRefs.value.forEach(cardElement => {
+    if (cardElement && cardElement._cleanup) {
+      cardElement._cleanup()
+    }
+  })
 }
 
 // Watch for changes in app list to setup swipe detection
 watch(() => props.openApps, () => {
   if (props.isVisible) {
     nextTick(() => {
+      cleanupSwipeDetection()
       setupCardSwipeDetection()
     })
   }
@@ -156,22 +211,12 @@ watch(() => props.isVisible, (visible) => {
       setupCardSwipeDetection()
     })
   } else {
-    // Cleanup when hidden
-    cardSwipeDetectors.forEach(detector => {
-      if (detector.removeSwipeListeners) {
-        detector.removeSwipeListeners()
-      }
-    })
-    cardSwipeDetectors = []
+    cleanupSwipeDetection()
   }
 })
 
 onUnmounted(() => {
-  cardSwipeDetectors.forEach(detector => {
-    if (detector.removeSwipeListeners) {
-      detector.removeSwipeListeners()
-    }
-  })
+  cleanupSwipeDetection()
 })
 </script>
 
@@ -218,14 +263,20 @@ onUnmounted(() => {
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: none; /* Disable CSS transitions for manual anime.js control */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   position: relative;
   flex-shrink: 0;
+  touch-action: none; /* Prevent default touch behaviors */
+  user-select: none; /* Prevent text selection during swipe */
 }
 
 .app-card:hover {
   transform: scale(1.02);
+}
+
+.app-card:active {
+  transform: scale(0.98);
 }
 
 .app-card.background-app {
