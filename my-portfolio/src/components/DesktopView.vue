@@ -58,20 +58,24 @@
         <ProjectWindow
           v-for="project in activeProjects"
           :key="'window-' + project.name"
+          v-show="!minimizedApps.has(`project-${project.name}`)"
           :project="project"
           :theme="osType"
           :draggable="osType !== 'ios'"
           @close="closeProject(project)"
+          @minimize="minimizeProject(project)"
           @show-app-switcher="showAppSwitcher"
           class="desktop-window"
         />
         
         <TextViewer
           v-if="showAbout"
+          v-show="!minimizedApps.has('about-txt')"
           :theme="osType"
           :content="aboutContent"
           title="About.txt"
           @close="closeAbout"
+          @minimize="minimizeAbout"
           @show-app-switcher="showAppSwitcher"
           class="desktop-window"
         />
@@ -96,7 +100,9 @@
       :height="desktopConfig.taskbarHeight"
       :color="desktopConfig.taskbarColor"
       :active-windows="[...activeProjects.map(p => p.name), ...(showAbout ? ['About.txt'] : [])]"
+      :minimized-windows="minimizedApps"
       @toggle-theme="$emit('toggle-theme')"
+      @restore-window="restoreApp"
     />
 
     <!-- iOS Home Indicator -->
@@ -126,6 +132,11 @@ const isAppSwitcherVisible = ref(false);
 const desktopSize = ref({ width: window.innerWidth, height: window.innerHeight });
 const currentTime = ref('');
 
+// Session tracking for app switcher
+const sessionApps = ref(new Map()); // Track all apps opened this session
+const currentForegroundApp = ref(null); // Track which app is currently in foreground
+const minimizedApps = ref(new Set()); // Track minimized windows
+
 const desktopConfig = computed(() => getDesktopConfig(props.osType));
 
 const aboutContent = `About Me
@@ -154,22 +165,66 @@ const getIconPosition = (index) => {
 
 const openProject = (project) => {
   console.log('Opening project:', project.name);
+  
+  // Add to session apps if not already there
+  const appId = `project-${project.name}`;
+  if (!sessionApps.value.has(appId)) {
+    sessionApps.value.set(appId, {
+      id: appId,
+      name: project.name,
+      type: 'project',
+      icon: getFileIcon('project', props.osType),
+      data: project,
+      openedAt: new Date()
+    });
+  }
+  
+  // Add to active projects if not already there
   if (!activeProjects.value.find(p => p.name === project.name)) {
     activeProjects.value.push(project);
   }
+  
+  // Set as foreground app
+  currentForegroundApp.value = appId;
 };
 
 const closeProject = (project) => {
   activeProjects.value = activeProjects.value.filter(p => p.name !== project.name);
+  
+  // If this was the foreground app, clear it
+  const appId = `project-${project.name}`;
+  if (currentForegroundApp.value === appId) {
+    currentForegroundApp.value = null;
+  }
 };
 
 const openAbout = () => {
   console.log('Opening About.txt');
+  
+  // Add to session apps if not already there
+  const appId = 'about-txt';
+  if (!sessionApps.value.has(appId)) {
+    sessionApps.value.set(appId, {
+      id: appId,
+      name: 'About.txt',
+      type: 'text',
+      icon: getFileIcon('text', props.osType),
+      data: null,
+      openedAt: new Date()
+    });
+  }
+  
   showAbout.value = true;
+  currentForegroundApp.value = appId;
 };
 
 const closeAbout = () => {
   showAbout.value = false;
+  
+  // If this was the foreground app, clear it
+  if (currentForegroundApp.value === 'about-txt') {
+    currentForegroundApp.value = null;
+  }
 };
 
 // App Switcher Methods
@@ -183,38 +238,51 @@ const hideAppSwitcher = () => {
   isAppSwitcherVisible.value = false;
 };
 
+// Minimize/Restore Methods
+const minimizeProject = (project) => {
+  const appId = `project-${project.name}`;
+  minimizedApps.value.add(appId);
+  console.log('Minimized project:', project.name);
+};
+
+const minimizeAbout = () => {
+  minimizedApps.value.add('about-txt');
+  console.log('Minimized About.txt');
+};
+
+const restoreApp = (appId) => {
+  minimizedApps.value.delete(appId);
+  console.log('Restored app:', appId);
+};
+
 const getOpenApps = () => {
-  const apps = [];
+  // Return all apps that have been opened this session
+  const apps = Array.from(sessionApps.value.values());
   
-  // Add active projects
-  activeProjects.value.forEach(project => {
-    apps.push({
-      id: `project-${project.name}`,
-      name: project.name,
-      type: 'project',
-      icon: getFileIcon('project', props.osType),
-      data: project
-    });
-  });
-  
-  // Add About.txt if open
-  if (showAbout.value) {
-    apps.push({
-      id: 'about-txt',
-      name: 'About.txt',
-      type: 'text',
-      icon: getFileIcon('text', props.osType),
-      data: null
-    });
-  }
-  
-  return apps;
+  // Add state information (foreground/background)
+  return apps.map(app => ({
+    ...app,
+    isActive: (app.type === 'project' && activeProjects.value.find(p => p.name === app.name)) ||
+              (app.type === 'text' && app.name === 'About.txt' && showAbout.value),
+    isForeground: currentForegroundApp.value === app.id
+  }));
 };
 
 const switchToApp = (app) => {
-  // Apps stay open, just hide the switcher
-  // The app is already visible, so just bring it to front
   console.log('Switching to app:', app.name);
+  
+  if (app.type === 'project') {
+    // If project is not in active list, add it back
+    if (!activeProjects.value.find(p => p.name === app.name)) {
+      activeProjects.value.push(app.data);
+    }
+  } else if (app.type === 'text' && app.name === 'About.txt') {
+    // If About.txt is not showing, show it
+    showAbout.value = true;
+  }
+  
+  // Set as foreground app
+  currentForegroundApp.value = app.id;
 };
 
 const closeAppFromSwitcher = (app) => {
@@ -226,12 +294,22 @@ const closeAppFromSwitcher = (app) => {
   } else if (app.type === 'text' && app.name === 'About.txt') {
     closeAbout();
   }
+  
+  // Remove from session apps when fully closed
+  sessionApps.value.delete(app.id);
+  
+  // Clear foreground if this was the current app
+  if (currentForegroundApp.value === app.id) {
+    currentForegroundApp.value = null;
+  }
 };
 
 const goToHome = () => {
-  // Close all apps and return to home screen
+  // Hide all apps but keep them in session (like real iPhone)
   activeProjects.value = [];
   showAbout.value = false;
+  currentForegroundApp.value = null;
+  // Note: sessionApps remains intact so they appear in app switcher
 };
 
 // Handle window resize

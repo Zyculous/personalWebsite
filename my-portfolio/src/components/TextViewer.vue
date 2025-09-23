@@ -15,7 +15,7 @@
           <div class="control-button maximize"></div>
         </template>
         <template v-else-if="theme === 'windows'">
-          <div class="control-button minimize">_</div>
+          <div class="control-button minimize" @click="minimizeWindow">_</div>
           <div class="control-button maximize">☐</div>
           <div class="control-button close" @click="$emit('close')">✕</div>
         </template>
@@ -27,7 +27,7 @@
           </div>
         </template>
         <template v-else-if="theme === 'linux'">
-          <div class="control-button minimize">_</div>
+          <div class="control-button minimize" @click="minimizeWindow">_</div>
           <div class="control-button maximize">☐</div>
           <div class="control-button close" @click="$emit('close')">✕</div>
         </template>
@@ -73,7 +73,7 @@ const props = defineProps({
   title: String
 });
 
-const emit = defineEmits(['close', 'show-app-switcher']);
+const emit = defineEmits(['close', 'show-app-switcher', 'minimize']);
 
 const windowRef = ref(null);
 const isDragging = ref(false);
@@ -146,6 +146,11 @@ const stopDrag = () => {
   isDragging.value = false;
   document.removeEventListener('mousemove', drag);
   document.removeEventListener('mouseup', stopDrag);
+};
+
+// Window actions
+const minimizeWindow = () => {
+  emit('minimize');
 };
 </script>
 

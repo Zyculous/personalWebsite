@@ -16,6 +16,8 @@
           v-for="window in activeWindows" 
           :key="window"
           class="taskbar-item"
+          :class="{ 'minimized': isWindowMinimized(window) }"
+          @click="handleWindowClick(window)"
         >
           {{ window }}
         </div>
@@ -109,12 +111,30 @@ const props = defineProps({
   position: String,
   height: String,
   color: String,
-  activeWindows: Array
+  activeWindows: Array,
+  minimizedWindows: {
+    type: Set,
+    default: () => new Set()
+  }
 });
 
-const emit = defineEmits(['toggle-theme']);
+const emit = defineEmits(['toggle-theme', 'restore-window']);
 
 const currentTime = ref('');
+
+// Helper methods
+const isWindowMinimized = (windowName) => {
+  const appId = windowName === 'About.txt' ? 'about-txt' : `project-${windowName}`;
+  return props.minimizedWindows.has(appId);
+};
+
+const handleWindowClick = (windowName) => {
+  const appId = windowName === 'About.txt' ? 'about-txt' : `project-${windowName}`;
+  if (isWindowMinimized(windowName)) {
+    emit('restore-window', appId);
+  }
+  // If not minimized, could add logic to bring to front or minimize
+};
 
 const taskbarStyle = computed(() => ({
   position: 'fixed',
@@ -213,6 +233,17 @@ onUnmounted(() => {
 
 .taskbar-item:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.taskbar-item.minimized {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  opacity: 0.7;
+}
+
+.taskbar-item.minimized:hover {
+  background: rgba(255, 255, 255, 0.15);
+  opacity: 1;
 }
 
 .system-tray {

@@ -11,7 +11,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['close', 'show-app-switcher']);
+const emit = defineEmits(['close', 'show-app-switcher', 'minimize']);
 
 const projectWindowRef = ref(null);
 const isDragging = ref(false);
@@ -93,6 +93,11 @@ const stopDrag = () => {
   document.removeEventListener('mousemove', drag);
   document.removeEventListener('mouseup', stopDrag);
 };
+
+// Window actions
+const minimizeWindow = () => {
+  emit('minimize');
+};
 </script>
 
 <template>
@@ -114,7 +119,7 @@ const stopDrag = () => {
       <h2 v-else class="title-bar-text">{{ project.name }}</h2>
       <!-- Windows Buttons -->
       <div v-if="theme === 'windows'" class="title-bar-buttons">
-        <span>_</span>
+        <span @click="minimizeWindow">_</span>
         <span>&#9633;</span>
         <span @click="$emit('close')">X</span>
       </div>

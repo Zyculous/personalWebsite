@@ -16,6 +16,7 @@
           v-for="app in openApps"
           :key="app.id"
           class="app-card"
+          :class="{ 'background-app': !app.isActive, 'foreground-app': app.isForeground }"
           @click="switchToApp(app)"
         >
           <!-- App Preview -->
@@ -23,6 +24,10 @@
             <div class="app-preview-header">
               <div class="app-icon">{{ app.icon }}</div>
               <span class="app-name">{{ app.name }}</span>
+              <div class="app-status">
+                <span v-if="!app.isActive" class="status-indicator background">⏸</span>
+                <span v-else-if="app.isForeground" class="status-indicator foreground">▶</span>
+              </div>
               <button 
                 class="close-app-btn"
                 @click.stop="closeApp(app)"
@@ -32,6 +37,9 @@
             </div>
             <div class="app-preview-content">
               <div class="app-preview-placeholder">
+                <div v-if="!app.isActive" class="background-overlay">
+                  <span class="background-text">Background</span>
+                </div>
                 {{ app.type === 'project' ? 'Project View' : 'Text Document' }}
               </div>
             </div>
@@ -145,6 +153,16 @@ const goToHome = () => {
   transform: scale(1.02);
 }
 
+.app-card.background-app {
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 0.8;
+}
+
+.app-card.foreground-app {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(0, 122, 255, 0.6);
+}
+
 .app-card.home-card {
   background: rgba(255, 255, 255, 0.15);
 }
@@ -178,6 +196,27 @@ const goToHome = () => {
   font-size: 14px;
   font-weight: 500;
   flex: 1;
+}
+
+.app-status {
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.status-indicator {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+}
+
+.status-indicator.background {
+  background: rgba(255, 165, 0, 0.8);
+}
+
+.status-indicator.foreground {
+  background: rgba(0, 122, 255, 0.8);
 }
 
 .close-app-btn {
@@ -215,6 +254,27 @@ const goToHome = () => {
 
 .app-preview-placeholder {
   text-align: center;
+  position: relative;
+}
+
+.background-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.background-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .home-preview {
