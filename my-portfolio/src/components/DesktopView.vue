@@ -7,6 +7,10 @@
     >
       <!-- Desktop Icons -->
       <div class="desktop-icons">
+        <div v-if="osType === 'ios'" style="position: absolute; top: 10px; left: 10px; color: white; z-index: 9999; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; font-size: 12px;">
+          Debug: {{ projects.length }} projects, OS: {{ osType }}
+        </div>
+        
         <!-- Project Icons -->
         <DesktopIcon
           v-for="(project, index) in projects"
@@ -142,8 +146,18 @@ LinkedIn: https://www.linkedin.com/in/zander-inderstrodt-60431b313
 Resume: https://docs.google.com/document/d/1Dl0WqHU_zk-pOHw9GP1-dsylwo1TuEjyh9y1Wc7O2B4/edit?usp=sharing`;
 
 const getIconPosition = (index) => {
-  const position = getDesktopGridPosition(index, desktopSize.value.width, desktopSize.value.height, props.osType);
-  console.log(`Icon ${index} position:`, position, 'OS:', props.osType, 'Container size:', desktopSize.value);
+  // For iOS in desktop mode, use the fixed iPhone width instead of window width
+  let containerWidth = desktopSize.value.width;
+  let containerHeight = desktopSize.value.height;
+  
+  if (props.osType === 'ios' && window.innerWidth >= 768) {
+    // When viewing iOS on desktop, use iPhone dimensions
+    containerWidth = 375;
+    containerHeight = 812;
+  }
+  
+  const position = getDesktopGridPosition(index, containerWidth, containerHeight, props.osType);
+  console.log(`Icon ${index} position:`, position, 'OS:', props.osType, 'Container size:', { width: containerWidth, height: containerHeight });
   return position;
 };
 
@@ -342,6 +356,8 @@ onMounted(() => {
   height: 100%;
   z-index: 1;
   pointer-events: auto;
+  /* Debug: add visible background for iOS */
+  background: rgba(255, 0, 0, 0.1);
 }
 
 .windows-container {
@@ -383,11 +399,6 @@ onMounted(() => {
   min-height: 100vh;
   width: 100%;
   position: relative;
-}
-
-.ios-desktop .desktop-icons {
-  padding-top: 44px; /* Account for status bar */
-  padding-bottom: 20px; /* Small bottom padding instead of dock space */
 }
 
 .linux-desktop {

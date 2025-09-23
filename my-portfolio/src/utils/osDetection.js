@@ -128,8 +128,8 @@ export function getDesktopGridPosition(index, containerWidth, containerHeight, o
     const totalWidth = 4 * iconSize + 3 * spacing;
     const marginX = (containerWidth - totalWidth) / 2;
     
-    // Start from top with proper spacing
-    const startY = 120; // Account for status bar and some padding
+    // Start from top with proper spacing (no status bar now)
+    const startY = 80; // Reduced from 120 since we removed status bar
     
     const row = Math.floor(index / 4);
     const col = index % 4;
