@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { getDesktopConfig, getFileIcon, getDesktopGridPosition } from '../utils/osDetection.js';
 import DesktopIcon from './DesktopIcon.vue';
 import ProjectWindow from './ProjectWindow.vue';
@@ -315,11 +315,62 @@ const updateDesktopSize = () => {
   desktopSize.value = { width: window.innerWidth, height: window.innerHeight };
 };
 
+// Handle ESC key functionality
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape') {
+    if (props.osType === 'ios') {
+      // iOS: Toggle app switcher
+      if (!isAppSwitcherVisible.value) {
+        // Only show app switcher if there are apps in session
+        if (sessionApps.value.size > 0) {
+          showAppSwitcher();
+        }
+      } else {
+        // If app switcher is already open, close it
+        hideAppSwitcher();
+      }
+    } else if (props.osType === 'windows') {
+      // Windows: Minimize the current foreground app
+      if (currentForegroundApp.value) {
+        const appId = currentForegroundApp.value;
+        minimizedApps.value.add(appId);
+        
+        // Find the app and minimize it
+        if (appId.startsWith('project-')) {
+          const projectName = appId.replace('project-', '');
+          const project = activeProjects.value.find(p => p.name === projectName);
+          if (project) {
+            minimizeProject(project);
+          }
+        } else if (appId === 'about-txt') {
+          minimizeAbout();
+        }
+        
+        // Clear foreground app
+        currentForegroundApp.value = null;
+        console.log('Minimized app via ESC:', appId);
+      }
+    }
+    
+    // Prevent default ESC behavior (like exiting fullscreen)
+    event.preventDefault();
+  }
+};
+
 onMounted(() => {
   console.log('DesktopView mounted');
   console.log('Projects:', props.projects);
   console.log('OS Type:', props.osType);
   window.addEventListener('resize', updateDesktopSize);
+  
+  // Add keyboard event listener for ESC key
+  document.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  // Clean up event listeners
+  window.removeEventListener('resize', updateDesktopSize);
+  document.removeEventListener('keydown', handleKeyDown);
 });
 </script>
 

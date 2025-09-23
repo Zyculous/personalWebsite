@@ -5,16 +5,28 @@
     @click="handleOverlayClick"
   >
     <div class="app-switcher-container">
+      <!-- Keyboard Shortcuts Info -->
+      <div class="keyboard-shortcuts">
+        <span>← → Navigate</span>
+        <span>↑ Close App</span>
+        <span>Enter/Space Select</span>
+        <span>Esc Exit</span>
+      </div>
+      
       <!-- App Cards Scrollable Container -->
       <div class="app-cards-scroll-container">
         <div class="app-cards-wrapper">
           <!-- Individual App Cards -->
           <div 
-            v-for="app in openApps"
+            v-for="(app, index) in openApps"
             :key="app.id"
             ref="appCardRefs"
             class="app-card"
-            :class="{ 'background-app': !app.isActive, 'foreground-app': app.isForeground }"
+            :class="{ 
+              'background-app': !app.isActive, 
+              'foreground-app': app.isForeground,
+              'selected-card': selectedCardIndex === index
+            }"
             @click="switchToApp(app)"
           >
             <!-- App Header -->
@@ -42,6 +54,7 @@
           <!-- Home Card -->
           <div 
             class="app-card home-card"
+            :class="{ 'selected-card': selectedCardIndex === openApps.length }"
             @click="goToHome"
           >
             <div class="app-card-header">
@@ -77,6 +90,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'switch-to-app', 'close-app', 'go-to-home'])
 
 const appCardRefs = ref([])
+const selectedCardIndex = ref(0) // Track which card is currently selected
 
 const switchToApp = (app) => {
   emit('switch-to-app', app)
@@ -96,6 +110,94 @@ const handleOverlayClick = (e) => {
   // Only close if clicking the overlay itself, not the cards
   if (e.target.classList.contains('app-switcher-overlay')) {
     emit('close')
+  }
+}
+
+// Keyboard navigation for app switcher
+const handleKeyDown = (event) => {
+  if (!props.isVisible) return
+
+  const totalCards = props.openApps.length + 1 // +1 for home card
+  
+  switch (event.key) {
+    case 'ArrowLeft':
+      event.preventDefault()
+      selectedCardIndex.value = selectedCardIndex.value > 0 
+        ? selectedCardIndex.value - 1 
+        : totalCards - 1
+      scrollToSelectedCard()
+      break
+      
+    case 'ArrowRight':
+      event.preventDefault()
+      selectedCardIndex.value = selectedCardIndex.value < totalCards - 1 
+        ? selectedCardIndex.value + 1 
+        : 0
+      scrollToSelectedCard()
+      break
+      
+    case 'ArrowUp':
+      event.preventDefault()
+      // Close the selected app if it's not the home card
+      if (selectedCardIndex.value < props.openApps.length) {
+        const selectedApp = props.openApps[selectedCardIndex.value]
+        closeAppWithAnimation(selectedApp, selectedCardIndex.value)
+      }
+      break
+      
+    case 'Enter':
+    case ' ': // Spacebar
+      event.preventDefault()
+      // Switch to selected app or go home
+      if (selectedCardIndex.value < props.openApps.length) {
+        const selectedApp = props.openApps[selectedCardIndex.value]
+        switchToApp(selectedApp)
+      } else {
+        goToHome()
+      }
+      break
+      
+    case 'Escape':
+      event.preventDefault()
+      emit('close')
+      break
+  }
+}
+
+const scrollToSelectedCard = () => {
+  nextTick(() => {
+    const container = document.querySelector('.app-cards-scroll-container')
+    if (container && appCardRefs.value[selectedCardIndex.value]) {
+      const selectedCard = appCardRefs.value[selectedCardIndex.value]
+      if (selectedCard) {
+        selectedCard.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest', 
+          inline: 'center' 
+        })
+      }
+    }
+  })
+}
+
+const closeAppWithAnimation = (app, cardIndex) => {
+  const cardElement = appCardRefs.value[cardIndex]
+  if (cardElement) {
+    // Apply exit animation
+    cardElement.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    cardElement.style.transform = 'translateY(-600px) scale(0.8)'
+    cardElement.style.opacity = '0'
+    
+    setTimeout(() => {
+      closeApp(app)
+      // Adjust selected index if needed after app closes
+      if (selectedCardIndex.value >= props.openApps.length) {
+        selectedCardIndex.value = Math.max(0, props.openApps.length - 1)
+      }
+    }, 300)
+  } else {
+    // Fallback if no card element
+    closeApp(app)
   }
 }
 
@@ -207,16 +309,24 @@ watch(() => props.openApps, () => {
 
 watch(() => props.isVisible, (visible) => {
   if (visible) {
+    // Reset selection when app switcher opens
+    selectedCardIndex.value = 0
     nextTick(() => {
       setupCardSwipeDetection()
     })
+    // Add keyboard event listener
+    document.addEventListener('keydown', handleKeyDown)
   } else {
     cleanupSwipeDetection()
+    // Remove keyboard event listener
+    document.removeEventListener('keydown', handleKeyDown)
   }
 })
 
 onUnmounted(() => {
   cleanupSwipeDetection()
+  // Ensure keyboard event listener is removed
+  document.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
@@ -238,6 +348,25 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   padding: 60px 0 40px;
+}
+
+.keyboard-shortcuts {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  margin: 0 20px 20px;
+  backdrop-filter: blur(10px);
+}
+
+.keyboard-shortcuts span {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .app-cards-scroll-container {
@@ -287,6 +416,12 @@ onUnmounted(() => {
 .app-card.foreground-app {
   border: 3px solid #007AFF;
   box-shadow: 0 8px 32px rgba(0, 122, 255, 0.4);
+}
+
+.app-card.selected-card {
+  border: 3px solid #FFD700;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.6);
+  transform: scale(1.05);
 }
 
 .app-card.home-card {
