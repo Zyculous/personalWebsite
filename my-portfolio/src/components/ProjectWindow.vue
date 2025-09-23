@@ -774,8 +774,14 @@ const minimizeWindow = () => {
 }
 
 .macos-theme .title-bar-buttons {
+  position: absolute !important;
   left: 8px !important;
   right: auto !important;
+  top: 0 !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  z-index: 20 !important;
   gap: 8px;
 }
 
