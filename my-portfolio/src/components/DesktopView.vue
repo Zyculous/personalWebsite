@@ -7,10 +7,6 @@
     >
       <!-- Desktop Icons -->
       <div class="desktop-icons">
-        <div v-if="osType === 'ios'" style="position: absolute; top: 10px; left: 10px; color: white; z-index: 9999; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; font-size: 12px;">
-          Debug: {{ projects.length }} projects, OS: {{ osType }}
-        </div>
-        
         <!-- Project Icons -->
         <DesktopIcon
           v-for="(project, index) in projects"
@@ -472,8 +468,6 @@ onUnmounted(() => {
   height: 100%;
   z-index: 1;
   pointer-events: auto;
-  /* Debug: add visible background for iOS */
-  background: rgba(255, 0, 0, 0.1);
 }
 
 .windows-container {

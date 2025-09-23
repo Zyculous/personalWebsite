@@ -149,7 +149,7 @@ export function getDesktopConfig(osType) {
       }
     },
     ios: {
-      wallpaper: 'url("/wallpapers/ios.jpg"), linear-gradient(180deg, #1C1C1E 0%, #2C2C2E 50%, #3A3A3C 100%)',
+      wallpaper: 'url("/wallpapers/IOS.jpg"), linear-gradient(180deg, #1C1C1E 0%, #2C2C2E 50%, #3A3A3C 100%)',
       taskbarHeight: '88px',
       taskbarPosition: 'bottom',
       taskbarColor: 'rgba(248, 248, 248, 0.94)',

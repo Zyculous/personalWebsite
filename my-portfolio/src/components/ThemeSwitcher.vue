@@ -19,7 +19,6 @@ defineEmits(['set-theme']);
       <button @click="$emit('set-theme', 'windows-11')" :class="{ 'bg-pink-400 text-black': currentTheme === 'windows-11' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50 text-left">Windows 11</button>
       
       <div class="text-sm text-gray-300 mb-1 mt-2">Other OS</div>
-      <button @click="$emit('set-theme', 'windows')" :class="{ 'bg-pink-400 text-black': currentTheme === 'windows' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50 text-left">Windows (Modern)</button>
       <button @click="$emit('set-theme', 'macos')" :class="{ 'bg-pink-400 text-black': currentTheme === 'macos' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50 text-left">macOS</button>
       <button @click="$emit('set-theme', 'linux')" :class="{ 'bg-pink-400 text-black': currentTheme === 'linux' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50 text-left">Linux</button>
       <button @click="$emit('set-theme', 'ios')" :class="{ 'bg-pink-400 text-black': currentTheme === 'ios' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50 text-left">iOS</button>
