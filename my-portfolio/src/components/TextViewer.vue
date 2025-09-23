@@ -1,14 +1,31 @@
 <template>
-  <div 
+  <div
     class="text-viewer"
-    :class="`${theme}-text-viewer`"
+    :class="`${normalizedTheme}-text-viewer`"
     :style="windowStyle"
     ref="windowRef"
   >
     <!-- Window Header -->
-    <div class="text-viewer-header" @mousedown="startDrag">
+    <div class="text-viewer-header" :class="headerClass" @mousedown="startDrag">
+      <!-- .window-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0 12px; /* Reduced margins since menu is in normal flow */
+}or some OS themes) -->
+      <div v-if="theme.startsWith('windows')" class="window-menu">
+        <span>File</span>
+        <span>Edit</span>
+        <span>View</span>
+        <span>Help</span>
+      </div>
+      
+      <!-- Title for non-iOS themes -->
+      <div v-if="theme !== 'ios'" class="window-title">{{ title }}</div>
+      
       <!-- Window Controls -->
-      <div class="window-controls" :class="theme">
+      <div class="window-controls" :class="normalizedTheme">
         <template v-if="theme === 'macos'">
           <div class="control-button close" @click="$emit('close')"></div>
           <div class="control-button minimize"></div>
@@ -32,21 +49,10 @@
           <div class="control-button close" @click="$emit('close')">✕</div>
         </template>
       </div>
-      
-      <!-- Title for non-iOS themes -->
-      <div v-if="theme !== 'ios'" class="window-title">{{ title }}</div>
-      
-      <!-- Menu (for some OS themes) -->
-      <div v-if="theme.startsWith('windows')" class="window-menu">
-        <span>File</span>
-        <span>Edit</span>
-        <span>View</span>
-        <span>Help</span>
-      </div>
     </div>
     
     <!-- Content Area -->
-    <div class="text-content" :class="theme">
+    <div class="text-content" :class="normalizedTheme">
       <pre>{{ content }}</pre>
     </div>
     
@@ -60,6 +66,21 @@
     <div v-if="theme === 'ios'" class="ios-home-indicator-bar">
       <div class="ios-home-indicator"></div>
     </div>
+    
+    <!-- Resize handles for draggable windows (not iOS) -->
+    <template v-if="theme !== 'ios'">
+      <!-- Edge handles -->
+      <div class="resize-handle resize-n" @mousedown="startResize('n', $event)"></div>
+      <div class="resize-handle resize-s" @mousedown="startResize('s', $event)"></div>
+      <div class="resize-handle resize-e" @mousedown="startResize('e', $event)"></div>
+      <div class="resize-handle resize-w" @mousedown="startResize('w', $event)"></div>
+      
+      <!-- Corner handles -->
+      <div class="resize-handle resize-ne" @mousedown="startResize('ne', $event)"></div>
+      <div class="resize-handle resize-nw" @mousedown="startResize('nw', $event)"></div>
+      <div class="resize-handle resize-se" @mousedown="startResize('se', $event)"></div>
+      <div class="resize-handle resize-sw" @mousedown="startResize('sw', $event)"></div>
+    </template>
   </div>
 </template>
 
@@ -75,8 +96,18 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'show-app-switcher', 'minimize']);
 
+// Normalize theme for CSS classes
+const normalizedTheme = computed(() => {
+  if (props.theme.startsWith('windows')) {
+    return 'windows';
+  }
+  return props.theme;
+});
+
 const windowRef = ref(null);
 const isDragging = ref(false);
+const isResizing = ref(false);
+const resizeDirection = ref('');
 const dragOffset = ref({ x: 0, y: 0 });
 const windowPosition = ref({ x: 200, y: 100 });
 const windowSize = ref({ width: 600, height: 400 });
@@ -144,8 +175,74 @@ const drag = (e) => {
 
 const stopDrag = () => {
   isDragging.value = false;
+  isResizing.value = false;
+  resizeDirection.value = '';
+  document.body.style.cursor = 'default';
   document.removeEventListener('mousemove', drag);
+  document.removeEventListener('mousemove', resize);
   document.removeEventListener('mouseup', stopDrag);
+};
+
+// Resize functionality
+const startResize = (direction, event) => {
+  isResizing.value = true;
+  resizeDirection.value = direction;
+  event.stopPropagation();
+  
+  document.addEventListener('mousemove', resize);
+  document.addEventListener('mouseup', stopDrag);
+  
+  // Set cursor based on direction
+  const cursors = {
+    'n': 'n-resize',
+    's': 's-resize',
+    'e': 'e-resize',
+    'w': 'w-resize',
+    'ne': 'ne-resize',
+    'nw': 'nw-resize',
+    'se': 'se-resize',
+    'sw': 'sw-resize'
+  };
+  document.body.style.cursor = cursors[direction] || 'default';
+};
+
+const resize = (e) => {
+  if (!isResizing.value) return;
+  
+  const direction = resizeDirection.value;
+  const minWidth = 300;
+  const minHeight = 200;
+  
+  let newWidth = windowSize.value.width;
+  let newHeight = windowSize.value.height;
+  let newX = windowPosition.value.x;
+  let newY = windowPosition.value.y;
+  
+  if (direction.includes('e')) {
+    newWidth = Math.max(minWidth, e.clientX - windowPosition.value.x);
+  }
+  if (direction.includes('w')) {
+    const deltaX = e.clientX - windowPosition.value.x;
+    if (windowSize.value.width - deltaX >= minWidth) {
+      newWidth = windowSize.value.width - deltaX;
+      newX = e.clientX;
+    }
+  }
+  if (direction.includes('s')) {
+    newHeight = Math.max(minHeight, e.clientY - windowPosition.value.y);
+  }
+  if (direction.includes('n')) {
+    const deltaY = e.clientY - windowPosition.value.y;
+    if (windowSize.value.height - deltaY >= minHeight) {
+      newHeight = windowSize.value.height - deltaY;
+      newY = e.clientY;
+    }
+  }
+  
+  windowSize.value.width = newWidth;
+  windowSize.value.height = newHeight;
+  windowPosition.value.x = newX;
+  windowPosition.value.y = newY;
 };
 
 // Window actions
@@ -179,18 +276,17 @@ const minimizeWindow = () => {
 .window-controls {
   display: flex;
   align-items: center;
-  padding: 0 12px;
-  gap: 8px;
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  z-index: 20;
+  padding: 0;
+  gap: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-right: 8px;
 }
 
 .window-controls.macos {
   left: 12px;
   right: auto;
+  gap: 8px;
 }
 
 .window-controls.macos .control-button {
@@ -213,14 +309,14 @@ const minimizeWindow = () => {
 }
 
 .window-controls.windows .control-button {
-  width: 36px;
+  width: 40px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 12px;
-  margin: 0 1px;
+  margin: 0;
   background: transparent;
   border: none;
   transition: background-color 0.1s ease;
@@ -255,10 +351,15 @@ const minimizeWindow = () => {
 }
 
 .window-title {
-  flex: 1;
+  flex: 0 1 auto;
   text-align: center;
   font-weight: 500;
   font-size: 14px;
+  margin: 0 12px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .window-menu {
@@ -266,6 +367,8 @@ const minimizeWindow = () => {
   gap: 12px;
   padding: 0 12px;
   font-size: 12px;
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .window-menu span {
@@ -286,27 +389,32 @@ const minimizeWindow = () => {
   font-size: 14px;
   line-height: 1.4;
   background: white;
+  color: black;
 }
 
 .text-content.windows {
   font-family: 'Consolas', 'Courier New', monospace;
   background: white;
+  color: black;
 }
 
 .text-content.macos {
   font-family: 'Menlo', 'Monaco', monospace;
   background: #fefefe;
+  color: black;
 }
 
 .text-content.ios {
   font-family: 'San Francisco Mono', 'Monaco', monospace;
   background: #fafafa;
   padding: 20px;
+  color: black;
 }
 
 .text-content.linux {
   font-family: 'Ubuntu Mono', 'Courier New', monospace;
   background: #ffffff;
+  color: black;
 }
 
 .text-content pre {
@@ -354,6 +462,14 @@ const minimizeWindow = () => {
   background: #0078d4;
   color: white;
   height: 32px;
+}
+
+/* Windows theme-specific button adjustments for TextViewer */
+.windows-text-viewer .window-controls.windows .control-button {
+  width: 40px;
+  height: 32px;
+  font-size: 11px;
+  margin: 0;
 }
 
 .macos-text-viewer {
@@ -418,5 +534,71 @@ const minimizeWindow = () => {
 .linux-text-viewer .text-viewer-header {
   background: #2d2d2d;
   color: white;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  background: transparent;
+  z-index: 200;
+}
+
+.resize-n, .resize-s {
+  height: 4px;
+  left: 8px;
+  right: 8px;
+  cursor: n-resize;
+}
+
+.resize-n {
+  top: 0;
+}
+
+.resize-s {
+  bottom: 0;
+}
+
+.resize-e, .resize-w {
+  width: 4px;
+  top: 8px;
+  bottom: 8px;
+  cursor: e-resize;
+}
+
+.resize-e {
+  right: 0;
+}
+
+.resize-w {
+  left: 0;
+}
+
+.resize-ne, .resize-nw, .resize-se, .resize-sw {
+  width: 8px;
+  height: 8px;
+}
+
+.resize-ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+}
+
+.resize-nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+}
+
+.resize-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.resize-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
 }
 </style>
