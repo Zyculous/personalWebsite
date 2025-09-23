@@ -284,8 +284,11 @@ const minimizeWindow = () => {
 }
 
 .window-controls.macos {
+  position: absolute;
   left: 12px;
   right: auto;
+  margin-left: 0;
+  margin-right: 0;
   gap: 8px;
 }
 
@@ -340,6 +343,25 @@ const minimizeWindow = () => {
 .window-controls.windows .close:active {
   background: #c50e1f;
   color: white;
+}
+
+.window-controls.linux .control-button {
+  width: 32px;
+  height: 24px;
+  margin: 0 2px;
+  background: #404040;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 3px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.window-controls.linux .control-button:hover {
+  background: #505050;
 }
 
 .ios-handle {
