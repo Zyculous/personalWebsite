@@ -163,7 +163,7 @@ export function getDesktopConfig(osType) {
       statusBar: true
     },
     linux: {
-      wallpaper: 'url("https://wallpaperaccess.com/full/1132033.jpg")',
+      wallpaper: 'url("/wallpapers/linux.jpg"), linear-gradient(135deg, #2C3E50 0%, #4CA1AF 100%)',
       taskbarHeight: '40px',
       taskbarPosition: 'bottom',
       taskbarColor: 'rgba(44, 62, 80, 0.9)',
