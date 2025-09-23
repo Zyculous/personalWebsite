@@ -22,12 +22,15 @@ import DesktopView from './components/DesktopView.vue';
 import ThemeSwitcher from './components/ThemeSwitcher.vue';
 
 const projects = ref([]);
-const currentTheme = ref('windows'); // Default theme
+const currentTheme = ref('windows-11'); // Default theme
 const showThemeSwitcher = ref(false);
 
 onMounted(async () => {
   // Detect OS automatically
-  currentTheme.value = detectOS();
+  const detectedOS = detectOS();
+  console.log('Detected OS:', detectedOS);
+  currentTheme.value = detectedOS;
+  console.log('Current theme set to:', currentTheme.value);
 
   // Fetch project data
   try {

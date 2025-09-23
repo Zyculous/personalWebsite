@@ -110,6 +110,133 @@ const handleDoubleClick = (e) => {
   border-radius: 8px;
 }
 
+/* Windows 98 style - classic 3D look */
+.windows-98-icon .icon-image {
+  border-radius: 2px;
+  background: linear-gradient(145deg, #C0C0C0 0%, #A0A0A0 100%);
+  border: 2px outset #C0C0C0;
+  box-shadow: inset 1px 1px 0 #FFFFFF, inset -1px -1px 0 #808080;
+}
+
+.windows-98-icon .icon-label {
+  color: #000000;
+  background: none;
+  text-shadow: none;
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+}
+
+/* Windows XP style - Luna theme */
+.windows-xp-icon .icon-image {
+  border-radius: 8px;
+  background: linear-gradient(145deg, #3F8FEF 0%, #215DC6 100%);
+  border: 1px solid #1F5F99;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.windows-xp-icon .icon-label {
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-family: 'Tahoma', sans-serif;
+  font-size: 11px;
+}
+
+/* Windows Vista style - Aero glass effect */
+.windows-vista-icon .icon-image {
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.windows-vista-icon .icon-label {
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.4);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 11px;
+}
+
+/* Windows 7 style - refined Aero */
+.windows-7-icon .icon-image {
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.windows-7-icon .icon-label {
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.4);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 11px;
+}
+
+/* Windows 8 style - Metro flat design */
+.windows-8-icon {
+  width: 80px;
+  height: 80px;
+}
+
+.windows-8-icon .icon-image {
+  width: 64px;
+  height: 64px;
+  border-radius: 0;
+  background: #1BA1E2;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.windows-8-icon .icon-label {
+  color: #FFFFFF;
+  background: none;
+  text-shadow: none;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+}
+
+/* Windows 10 style - modern flat with subtle shadows */
+.windows-10-icon .icon-image {
+  border-radius: 6px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.windows-10-icon .icon-label {
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* Windows 11 style - rounded modern design */
+.windows-11-icon .icon-image {
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.windows-11-icon .icon-label {
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.25);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+}
+
 .macos-icon .icon-image {
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);

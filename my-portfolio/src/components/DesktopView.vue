@@ -125,7 +125,12 @@ const sessionApps = ref(new Map()); // Track all apps opened this session
 const currentForegroundApp = ref(null); // Track which app is currently in foreground
 const minimizedApps = ref(new Set()); // Track minimized windows
 
-const desktopConfig = computed(() => getDesktopConfig(props.osType));
+const desktopConfig = computed(() => {
+  const config = getDesktopConfig(props.osType);
+  console.log('Desktop config for OS type:', props.osType, 'Config:', config);
+  console.log('Wallpaper:', config.wallpaper);
+  return config;
+});
 
 const aboutContent = `About Me
 
@@ -397,6 +402,66 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   position: relative;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+/* OS-specific wallpaper sizing */
+.windows-98-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.windows-xp-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.windows-vista-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.windows-7-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.windows-8-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.windows-10-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.windows-11-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.macos-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+.ios-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
+  background-attachment: scroll;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.linux-desktop .desktop-background {
+  background-size: cover !important;
+  background-position: center center !important;
 }
 
 .desktop-icons {

@@ -117,14 +117,25 @@ const minimizeWindow = () => {
       </div>
       <!-- Default title for other themes -->
       <h2 v-else class="title-bar-text">{{ project.name }}</h2>
-      <!-- Windows Buttons -->
-      <div v-if="theme === 'windows'" class="title-bar-buttons">
-        <span @click="minimizeWindow">_</span>
-        <span>&#9633;</span>
-        <span @click="$emit('close')">X</span>
+      
+      <!-- Windows Buttons - all versions -->
+      <div v-if="theme.startsWith('windows')" class="title-bar-buttons">
+        <span @click="minimizeWindow" class="win-button minimize-btn">_</span>
+        <span class="win-button maximize-btn">&#9633;</span>
+        <span @click="$emit('close')" class="win-button close-btn">X</span>
       </div>
     </div>
-    <div class="p-6 relative h-96 overflow-y-auto">
+    <div class="window-content relative h-96 overflow-y-auto" :class="{
+      'windows-98-content': theme === 'windows-98',
+      'windows-xp-content': theme === 'windows-xp',
+      'windows-vista-content': theme === 'windows-vista',
+      'windows-7-content': theme === 'windows-7',
+      'windows-8-content': theme === 'windows-8',
+      'windows-10-content': theme === 'windows-10',
+      'windows-11-content': theme === 'windows-11',
+      'p-6': !theme.startsWith('windows') && theme !== 'ios',
+      'ios-content': theme === 'ios'
+    }">
       <p class="text-base mb-4">{{ project.description }}</p>
       <div class="relative h-full">
         <img v-for="(img, index) in project.images" :key="img" :src="img" 
@@ -195,7 +206,299 @@ const minimizeWindow = () => {
   height: 44px;
 }
 
-.ios-theme .p-6 {
+/* Windows Theme Variations */
+
+/* Windows 98 Theme */
+.windows-98-theme {
+  border: 2px outset #C0C0C0;
+  background: #C0C0C0;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.windows-98-theme .title-bar {
+  background: linear-gradient(90deg, #0F4080 0%, #4080FF 100%);
+  color: white;
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  height: 18px;
+  padding: 2px 4px;
+  border-bottom: 1px solid #808080;
+}
+
+.windows-98-theme .win-button {
+  background: #C0C0C0;
+  border: 1px outset #C0C0C0;
+  width: 16px;
+  height: 14px;
+  font-size: 10px;
+  color: black;
+}
+
+/* Windows XP Theme */
+.windows-xp-theme {
+  border: 1px solid #0A246A;
+  background: #ECE9D8;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.windows-xp-theme .title-bar {
+  background: linear-gradient(90deg, #0F4080 0%, #4080FF 50%, #0F4080 100%);
+  color: white;
+  font-family: 'Tahoma', sans-serif;
+  font-size: 11px;
+  height: 22px;
+  border-radius: 8px 8px 0 0;
+}
+
+.windows-xp-theme .win-button {
+  background: linear-gradient(145deg, #E1E1E1 0%, #C0C0C0 100%);
+  border: 1px solid #8E8E8E;
+  width: 18px;
+  height: 16px;
+  font-size: 10px;
+  color: black;
+  border-radius: 2px;
+}
+
+/* Windows Vista Theme */
+.windows-vista-theme {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.windows-vista-theme .title-bar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+  color: black;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  height: 30px;
+  border-radius: 8px 8px 0 0;
+  backdrop-filter: blur(5px);
+}
+
+.windows-vista-theme .win-button {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  width: 22px;
+  height: 20px;
+  font-size: 11px;
+  color: black;
+  border-radius: 3px;
+  backdrop-filter: blur(5px);
+}
+
+/* Windows 7 Theme */
+.windows-7-theme {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.windows-7-theme .title-bar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+  color: black;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  height: 28px;
+  border-radius: 6px 6px 0 0;
+  backdrop-filter: blur(5px);
+}
+
+.windows-7-theme .win-button {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  width: 22px;
+  height: 20px;
+  font-size: 11px;
+  color: black;
+  border-radius: 3px;
+  backdrop-filter: blur(3px);
+}
+
+/* Windows 8 Theme */
+.windows-8-theme {
+  border: none;
+  background: #FFFFFF;
+  border-radius: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.windows-8-theme .title-bar {
+  background: #1BA1E2;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  height: 32px;
+  font-weight: 300;
+}
+
+.windows-8-theme .win-button {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 28px;
+  font-size: 12px;
+  color: white;
+  font-weight: 300;
+}
+
+.windows-8-theme .win-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Windows 10 Theme */
+.windows-10-theme {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #FFFFFF;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.windows-10-theme .title-bar {
+  background: #F3F3F3;
+  color: #333333;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13px;
+  height: 32px;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.windows-10-theme .win-button {
+  background: transparent;
+  border: none;
+  width: 46px;
+  height: 30px;
+  font-size: 12px;
+  color: #333333;
+}
+
+.windows-10-theme .win-button:hover {
+  background: #E5E5E5;
+}
+
+.windows-10-theme .close-btn:hover {
+  background: #E81123;
+  color: white;
+}
+
+/* Windows 11 Theme */
+.windows-11-theme {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.windows-11-theme .title-bar {
+  background: #F9F9F9;
+  color: #333333;
+  font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  height: 32px;
+  border-bottom: 1px solid #E5E5E5;
+  border-radius: 8px 8px 0 0;
+}
+
+.windows-11-theme .win-button {
+  background: transparent;
+  border: none;
+  width: 46px;
+  height: 30px;
+  font-size: 12px;
+  color: #333333;
+  border-radius: 4px;
+}
+
+.windows-11-theme .win-button:hover {
+  background: #F0F0F0;
+}
+
+.windows-11-theme .close-btn:hover {
+  background: #C42B1C;
+  color: white;
+}
+
+/* General Windows button styles */
+.win-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.win-button:active {
+  transform: scale(0.95);
+}
+
+/* Windows Content Styling */
+.windows-98-content {
+  padding: 8px;
+  background: #C0C0C0;
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+  color: black;
+}
+
+.windows-xp-content {
+  padding: 12px;
+  background: #ECE9D8;
+  font-family: 'Tahoma', sans-serif;
+  font-size: 11px;
+  color: #333;
+}
+
+.windows-vista-content {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(5px);
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #333;
+}
+
+.windows-7-content {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(3px);
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #333;
+}
+
+.windows-8-content {
+  padding: 20px;
+  background: #FFFFFF;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  color: #333;
+  font-weight: 300;
+}
+
+.windows-10-content {
+  padding: 16px;
+  background: #FFFFFF;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #333;
+}
+
+.windows-11-content {
+  padding: 16px;
+  background: #FFFFFF;
+  font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #333;
+}
+
+.ios-content {
   padding: 16px;
   background: #ffffff;
   height: calc(100% - 44px);

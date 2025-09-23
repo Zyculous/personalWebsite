@@ -5,8 +5,25 @@
     :style="taskbarStyle"
   >
     <!-- Windows Taskbar -->
-    <div v-if="osType === 'windows'" class="windows-taskbar-content">
-      <div class="start-button">
+    <div v-if="osType === 'windows' || osType.startsWith('windows')" class="windows-taskbar-content">
+      <!-- Windows 11 specific Start button -->
+      <div v-if="osType === 'windows-11'" class="windows-11-start-section">
+        <div class="start-button windows-11-start">
+          <span class="windows-logo">⊞</span>
+        </div>
+        <div class="search-button">
+          <span class="search-icon">🔍</span>
+        </div>
+        <div class="task-view-button">
+          <span class="task-view-icon">⧉</span>
+        </div>
+        <div class="widgets-button">
+          <span class="widgets-icon">☀</span>
+        </div>
+      </div>
+      
+      <!-- Other Windows versions Start button -->
+      <div v-else class="start-button">
         <span>⊞</span>
         <span>Start</span>
       </div>
@@ -23,12 +40,21 @@
         </div>
       </div>
       
-      <div class="system-tray">
+      <div class="system-tray" :class="{ 'windows-11-system-tray': osType === 'windows-11' }">
+        <div v-if="osType === 'windows-11'" class="windows-11-system-icons">
+          <div class="system-icon">🔊</div>
+          <div class="system-icon">📶</div>
+          <div class="system-icon">🔋</div>
+        </div>
         <div class="theme-toggle" @click="$emit('toggle-theme')" title="Change Theme">
           🎨
         </div>
-        <div class="time">
-          {{ currentTime }}
+        <div class="time" :class="{ 'windows-11-time': osType === 'windows-11' }">
+          <div v-if="osType === 'windows-11'" class="time-date">
+            <div class="time-display">{{ currentTime }}</div>
+            <div class="date-display">{{ currentDate }}</div>
+          </div>
+          <div v-else>{{ currentTime }}</div>
         </div>
       </div>
     </div>
@@ -121,6 +147,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle-theme', 'restore-window']);
 
 const currentTime = ref('');
+const currentDate = ref('');
 
 // Helper methods
 const isWindowMinimized = (windowName) => {
@@ -161,9 +188,19 @@ const updateTime = () => {
   const timeOptions = { 
     hour: '2-digit', 
     minute: '2-digit',
-    hour12: props.osType === 'windows'
+    hour12: props.osType === 'windows' || props.osType.startsWith('windows')
   };
   currentTime.value = now.toLocaleTimeString([], timeOptions);
+  
+  // Format date for Windows 11
+  if (props.osType === 'windows-11') {
+    const dateOptions = { 
+      month: 'numeric', 
+      day: 'numeric',
+      year: 'numeric'
+    };
+    currentDate.value = now.toLocaleDateString([], dateOptions);
+  }
 };
 
 let timeInterval;
@@ -194,6 +231,98 @@ onUnmounted(() => {
   height: 100%;
   padding: 0 8px;
   gap: 8px;
+}
+
+/* Windows 11 specific styling */
+.windows-11-start-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.windows-11-start {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  transition: all 0.2s ease;
+}
+
+.windows-11-start:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.windows-logo {
+  font-size: 18px;
+  color: white;
+}
+
+.search-button, .task-view-button, .widgets-button {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-button:hover, .task-view-button:hover, .widgets-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.search-icon, .task-view-icon, .widgets-icon {
+  font-size: 16px;
+  color: white;
+}
+
+.windows-11-system-tray {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-left: 8px;
+}
+
+.windows-11-system-icons {
+  display: flex;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.system-icon {
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.system-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.windows-11-time {
+  text-align: right;
+  min-width: 80px;
+}
+
+.time-display {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.date-display {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
 }
 
 .start-button {
@@ -403,6 +532,12 @@ onUnmounted(() => {
 /* OS-specific styling */
 .windows-taskbar {
   background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.windows-11-desktop .taskbar {
+  background: rgba(32, 32, 32, 0.7) !important;
+  backdrop-filter: blur(30px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .macos-taskbar {
