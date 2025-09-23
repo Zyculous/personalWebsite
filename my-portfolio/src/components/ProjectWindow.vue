@@ -1,10 +1,32 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 const props = defineProps({
   project: Object,
-  theme: String
+  theme: String,
+  draggable: {
+    type: Boolean,
+    default: false
+  }
 });
 const emit = defineEmits(['close']);
+
+const projectWindowRef = ref(null);
+const isDragging = ref(false);
+const dragOffset = ref({ x: 0, y: 0 });
+const windowPosition = ref({ x: 100 + Math.random() * 200, y: 50 + Math.random() * 100 });
+const windowSize = ref({ width: 500, height: 400 });
+
+const windowStyle = computed(() => {
+  if (!props.draggable) return {};
+  return {
+    position: 'absolute',
+    left: windowPosition.value.x + 'px',
+    top: windowPosition.value.y + 'px',
+    width: windowSize.value.width + 'px',
+    height: windowSize.value.height + 'px',
+    zIndex: 100
+  };
+});
 
 const getImagePosition = (index) => {
   const pos = props.project.imagePositions[index] || { x: 10, y: 10 };
@@ -15,11 +37,39 @@ const getImagePosition = (index) => {
   };
 };
 
-// iOS swipe-to-close logic
+// Drag functionality
+const startDrag = (e) => {
+  if (!props.draggable) return;
+  
+  isDragging.value = true;
+  dragOffset.value = {
+    x: e.clientX - windowPosition.value.x,
+    y: e.clientY - windowPosition.value.y
+  };
+  
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', stopDrag);
+};
+
+const drag = (e) => {
+  if (!isDragging.value) return;
+  
+  windowPosition.value = {
+    x: e.clientX - dragOffset.value.x,
+    y: e.clientY - dragOffset.value.y
+  };
+};
+
+const stopDrag = () => {
+  isDragging.value = false;
+  document.removeEventListener('mousemove', drag);
+  document.removeEventListener('mouseup', stopDrag);
+};
+
+// iOS swipe-to-close logic (keeping existing code)
 const startY = ref(null);
 const deltaY = ref(0);
 const threshold = 80; // px to trigger close
-const windowRef = ref(null);
 
 const onTouchStart = (e) => {
   if (e.touches && e.touches.length === 1) {
@@ -31,16 +81,16 @@ const onTouchMove = (e) => {
   if (startY.value !== null && e.touches && e.touches.length === 1) {
     e.preventDefault(); // Prevent main page scroll
     deltaY.value = e.touches[0].clientY - startY.value;
-    if (deltaY.value < 0 && windowRef.value) {
-      windowRef.value.style.transform = `translateY(${deltaY.value}px)`;
+    if (deltaY.value < 0 && projectWindowRef.value) {
+      projectWindowRef.value.style.transform = `translateY(${deltaY.value}px)`;
     }
   }
 };
 const onTouchEnd = () => {
   if (deltaY.value < -threshold) {
     emit('close');
-  } else if (windowRef.value) {
-    windowRef.value.style.transform = '';
+  } else if (projectWindowRef.value) {
+    projectWindowRef.value.style.transform = '';
   }
   startY.value = null;
   deltaY.value = 0;
@@ -57,10 +107,10 @@ const onMouseDown = (e) => {
   }
 };
 const onMouseMove = (e) => {
-  if (mouseDragging && windowRef.value) {
+  if (mouseDragging && projectWindowRef.value) {
     const moveY = e.clientY - mouseStartY;
     if (moveY < 0) {
-      windowRef.value.style.transform = `translateY(${moveY}px)`;
+      projectWindowRef.value.style.transform = `translateY(${moveY}px)`;
     }
   }
 };
@@ -69,8 +119,8 @@ const onMouseUp = (e) => {
     const moveY = e.clientY - mouseStartY;
     if (moveY < -threshold) {
       emit('close');
-    } else if (windowRef.value) {
-      windowRef.value.style.transform = '';
+    } else if (projectWindowRef.value) {
+      projectWindowRef.value.style.transform = '';
     }
     mouseDragging = false;
     window.removeEventListener('mousemove', onMouseMove);
@@ -80,8 +130,8 @@ const onMouseUp = (e) => {
 </script>
 
 <template>
-  <div class="project-window mb-8" :class="theme + '-theme'" ref="windowRef">
-    <div class="title-bar">
+  <div class="project-window mb-8" :class="theme + '-theme'" :style="windowStyle" ref="projectWindowRef">
+    <div class="title-bar" @mousedown="startDrag">
       <!-- macOS Buttons -->
       <div v-if="theme === 'macos'" class="title-bar-buttons">
         <span class="close" @click="$emit('close')"></span>

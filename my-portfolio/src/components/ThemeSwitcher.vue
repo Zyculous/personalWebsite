@@ -11,6 +11,7 @@ defineEmits(['set-theme']);
     <div class="flex flex-col gap-2">
       <button @click="$emit('set-theme', 'windows')" :class="{ 'bg-pink-400 text-black': currentTheme === 'windows' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50">Windows</button>
       <button @click="$emit('set-theme', 'macos')" :class="{ 'bg-pink-400 text-black': currentTheme === 'macos' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50">macOS</button>
+      <button @click="$emit('set-theme', 'linux')" :class="{ 'bg-pink-400 text-black': currentTheme === 'linux' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50">Linux</button>
       <button @click="$emit('set-theme', 'ios')" :class="{ 'bg-pink-400 text-black': currentTheme === 'ios' }" class="px-3 py-1 rounded transition-colors hover:bg-pink-400/50">iOS</button>
     </div>
   </div>
