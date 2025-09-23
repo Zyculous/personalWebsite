@@ -55,6 +55,11 @@
       <span>{{ getLineCount() }} lines</span>
       <span>{{ getCharCount() }} characters</span>
     </div>
+    
+    <!-- iOS Home Indicator -->
+    <div v-if="theme === 'ios'" class="ios-home-indicator-bar">
+      <div class="ios-home-indicator"></div>
+    </div>
   </div>
 </template>
 
@@ -76,8 +81,10 @@ const dragOffset = ref({ x: 0, y: 0 });
 const windowPosition = ref({ x: 200, y: 100 });
 const windowSize = ref({ width: 600, height: 400 });
 
-// iOS Swipe Gesture
-const { swipeDirection, isSwipeDetected } = useSwipeGesture(windowRef);
+// iOS Swipe Gesture - only from bottom area
+const { swipeDirection, isSwipeDetected } = useSwipeGesture(windowRef, {
+  startArea: { bottom: 60 } // Only allow swipes starting from bottom 60px
+});
 
 // Watch for swipe up gesture on iOS
 watch([swipeDirection, isSwipeDetected], ([direction, detected]) => {
@@ -93,7 +100,7 @@ const windowStyle = computed(() => {
       left: '0px',
       top: '44px',
       width: '100%',
-      height: 'calc(100% - 44px - 88px)',
+      height: 'calc(100% - 44px)', // Only account for status bar
       zIndex: 100
     };
   }
@@ -291,6 +298,23 @@ const stopDrag = () => {
   color: #666;
 }
 
+/* iOS Home Indicator Bar */
+.ios-home-indicator-bar {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 248, 248, 0.94);
+  backdrop-filter: blur(20px);
+}
+
+.ios-home-indicator {
+  width: 134px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
 /* OS-specific styling */
 .windows-text-viewer {
   border-radius: 0;
@@ -354,6 +378,7 @@ const stopDrag = () => {
   font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   line-height: 1.5;
+  height: calc(100% - 44px - 40px); /* Account for header and home indicator */
 }
 
 .linux-text-viewer {

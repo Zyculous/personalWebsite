@@ -41,6 +41,16 @@
           :os-type="osType"
           @double-click="openAbout"
         />
+        
+        <!-- Settings/Theme Switcher Icon (iOS only) -->
+        <DesktopIcon
+          v-if="osType === 'ios'"
+          :icon="'⚙️'"
+          :label="'Settings'"
+          :position="getIconPosition(projects.length + 1)"
+          :os-type="osType"
+          @double-click="$emit('toggle-theme')"
+        />
       </div>
       
       <!-- Opened Windows -->
@@ -78,9 +88,9 @@
       />
     </div>
     
-    <!-- Taskbar/Dock -->
+    <!-- Taskbar/Dock (not for iOS) -->
     <Taskbar
-      v-if="desktopConfig.taskbarPosition !== 'none'"
+      v-if="desktopConfig.taskbarPosition !== 'none' && osType !== 'ios'"
       :os-type="osType"
       :position="desktopConfig.taskbarPosition"
       :height="desktopConfig.taskbarHeight"
@@ -329,7 +339,7 @@ onMounted(() => {
 
 .ios-desktop .desktop-icons {
   padding-top: 44px; /* Account for status bar */
-  padding-bottom: 88px; /* Account for dock */
+  padding-bottom: 20px; /* Small bottom padding instead of dock space */
 }
 
 .linux-desktop {

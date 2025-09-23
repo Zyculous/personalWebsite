@@ -19,8 +19,10 @@ const dragOffset = ref({ x: 0, y: 0 });
 const windowPosition = ref({ x: 100 + Math.random() * 200, y: 50 + Math.random() * 100 });
 const windowSize = ref({ width: 500, height: 400 });
 
-// iOS Swipe Gesture
-const { swipeDirection, isSwipeDetected } = useSwipeGesture(projectWindowRef);
+// iOS Swipe Gesture - only from bottom area
+const { swipeDirection, isSwipeDetected } = useSwipeGesture(projectWindowRef, {
+  startArea: { bottom: 60 } // Only allow swipes starting from bottom 60px
+});
 
 // Watch for swipe up gesture on iOS
 watch([swipeDirection, isSwipeDetected], ([direction, detected]) => {
@@ -31,13 +33,13 @@ watch([swipeDirection, isSwipeDetected], ([direction, detected]) => {
 
 const windowStyle = computed(() => {
   if (props.theme === 'ios') {
-    // iOS apps open fullscreen
+    // iOS apps open fullscreen without taskbar
     return {
       position: 'fixed',
       left: '0px',
       top: '44px', // Account for status bar
       width: '100%',
-      height: 'calc(100% - 44px - 88px)', // Account for status bar and dock
+      height: 'calc(100% - 44px)', // Only account for status bar
       zIndex: 100
     };
   }
@@ -91,68 +93,6 @@ const stopDrag = () => {
   document.removeEventListener('mousemove', drag);
   document.removeEventListener('mouseup', stopDrag);
 };
-
-// iOS swipe-to-close logic (keeping existing code)
-const startY = ref(null);
-const deltaY = ref(0);
-const threshold = 80; // px to trigger close
-
-const onTouchStart = (e) => {
-  if (e.touches && e.touches.length === 1) {
-    startY.value = e.touches[0].clientY;
-    deltaY.value = 0;
-  }
-};
-const onTouchMove = (e) => {
-  if (startY.value !== null && e.touches && e.touches.length === 1) {
-    e.preventDefault(); // Prevent main page scroll
-    deltaY.value = e.touches[0].clientY - startY.value;
-    if (deltaY.value < 0 && projectWindowRef.value) {
-      projectWindowRef.value.style.transform = `translateY(${deltaY.value}px)`;
-    }
-  }
-};
-const onTouchEnd = () => {
-  if (deltaY.value < -threshold) {
-    emit('close');
-  } else if (projectWindowRef.value) {
-    projectWindowRef.value.style.transform = '';
-  }
-  startY.value = null;
-  deltaY.value = 0;
-};
-// Mouse fallback for desktop
-let mouseStartY = null;
-let mouseDragging = false;
-const onMouseDown = (e) => {
-  if (props.theme === 'ios') {
-    mouseStartY = e.clientY;
-    mouseDragging = true;
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  }
-};
-const onMouseMove = (e) => {
-  if (mouseDragging && projectWindowRef.value) {
-    const moveY = e.clientY - mouseStartY;
-    if (moveY < 0) {
-      projectWindowRef.value.style.transform = `translateY(${moveY}px)`;
-    }
-  }
-};
-const onMouseUp = (e) => {
-  if (mouseDragging) {
-    const moveY = e.clientY - mouseStartY;
-    if (moveY < -threshold) {
-      emit('close');
-    } else if (projectWindowRef.value) {
-      projectWindowRef.value.style.transform = '';
-    }
-    mouseDragging = false;
-    window.removeEventListener('mousemove', onMouseMove);
-    window.removeEventListener('mouseup', onMouseUp);
-  }
-};
 </script>
 
 <template>
@@ -189,7 +129,7 @@ const onMouseUp = (e) => {
       </div>
     </div>
     <!-- iOS Swipe Bar at Bottom -->
-    <div v-if="theme === 'ios'" class="ios-swipe-bar" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @mousedown="onMouseDown">
+    <div v-if="theme === 'ios'" class="ios-swipe-bar">
       <div class="ios-swipe-indicator"></div>
     </div>
   </div>
