@@ -25,7 +25,7 @@ export function detectOS() {
   if (userAgent.indexOf("Mac") !== -1 || platform.indexOf("Mac") !== -1) {
     console.log('Detected: macOS, defaulting to macOS Sonoma');
     // Always return macOS Sonoma for any macOS detection
-    return 'macos-sonoma';
+    return 'macos';
   }
   
   if (userAgent.indexOf("Win") !== -1 || platform.indexOf("Win") !== -1) {
